@@ -22,6 +22,7 @@ export function Navigation({ route, onNavigate }: NavigationProps) {
       <div className="nav-links">
         <a href="/" className={route === '/' ? 'is-active' : ''} onClick={(event) => handleClick(event, '/')}>Home</a>
         <a href="/requests" className={route === '/requests' ? 'is-active' : ''} onClick={(event) => handleClick(event, '/requests')}>New Request</a>
+        <a href="/workflows" className={route === '/workflows' ? 'is-active' : ''} onClick={(event) => handleClick(event, '/workflows')}>Workflows</a>
         <a href="/doctors" className={route === '/doctors' ? 'is-active' : ''} onClick={(event) => handleClick(event, '/doctors')}>Doctor Pool</a>
       </div>
     </nav>

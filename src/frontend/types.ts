@@ -34,4 +34,24 @@ export type RequestSubmissionResult = {
   routingDecision: RoutingDecision;
 };
 
-export type AppRoute = '/' | '/requests' | '/doctors';
+export type WorkflowSummary = {
+  id: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  requestCount: number;
+  taskCount: number;
+  latestTaskStatus: string | null;
+  latestTaskType: string | null;
+  route: string | null;
+  priority: string | null;
+  caseSummary: string | null;
+  reason: string | null;
+};
+
+export type WorkflowListState =
+  | { status: 'loading'; workflows: WorkflowSummary[]; error?: never }
+  | { status: 'loaded'; workflows: WorkflowSummary[]; error?: never }
+  | { status: 'error'; workflows: WorkflowSummary[]; error: string };
+
+export type AppRoute = '/' | '/requests' | '/doctors' | '/workflows';

@@ -1,6 +1,7 @@
 import { createServer } from 'node:http';
 import { getDoctorPoolController } from './doctors/pool.controller';
 import { createRequestController } from './requests/request.controller';
+import { getWorkflowsController } from './workflows/workflow.controller';
 
 const port = Number.parseInt(process.env.PORT ?? '3000', 10);
 const host = process.env.HOST ?? '0.0.0.0';
@@ -29,6 +30,18 @@ const server = createServer((request, response) => {
     }
 
     void createRequestController(request, response);
+    return;
+  }
+
+  if (url.pathname === '/api/workflows') {
+    if (request.method !== 'GET') {
+      response.statusCode = 405;
+      response.setHeader('Allow', 'GET');
+      response.end();
+      return;
+    }
+
+    void getWorkflowsController(request, response);
     return;
   }
 

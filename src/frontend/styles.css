@@ -35,7 +35,8 @@ body {
 
 .landing-page,
 .doctors-page,
-.requests-page {
+.requests-page,
+.workflows-page {
   display: grid;
   align-content: start;
   gap: clamp(2rem, 5vw, 4rem);
@@ -481,6 +482,99 @@ p {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
+}
+
+.workflow-table-shell {
+  overflow-x: auto;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 1.5rem;
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: 0 1.5rem 4rem rgba(15, 23, 42, 0.08);
+}
+
+.workflow-table {
+  width: 100%;
+  min-width: 62rem;
+  border-collapse: collapse;
+}
+
+.workflow-table th,
+.workflow-table td {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  text-align: left;
+  vertical-align: top;
+}
+
+.workflow-table thead th {
+  color: #64748b;
+  background: rgba(241, 245, 249, 0.72);
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.workflow-table tbody th {
+  width: 28rem;
+}
+
+.workflow-table tbody tr:last-child th,
+.workflow-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.workflow-table tbody tr:hover {
+  background: rgba(236, 253, 245, 0.46);
+}
+
+.workflow-id,
+.workflow-task-type,
+.workflow-task-status {
+  display: block;
+}
+
+.workflow-id {
+  margin-bottom: 0.35rem;
+  color: #0f766e;
+  font-weight: 900;
+}
+
+.workflow-summary {
+  display: block;
+  color: #475569;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.workflow-task-type {
+  color: #10201d;
+  font-weight: 800;
+}
+
+.workflow-task-status {
+  margin-top: 0.2rem;
+  color: #64748b;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.workflow-table td {
+  color: #334155;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.workflow-table-message {
+  color: #475569;
+  line-height: 1.6;
+  text-align: center;
+  text-transform: none;
+}
+
+.workflow-table-message.is-error {
+  color: #9a3412;
+  background: #fff7ed;
 }
 
 .doctor-card {

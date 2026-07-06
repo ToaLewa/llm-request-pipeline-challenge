@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { DoctorsPage } from './components/DoctorsPage';
 import { LandingPage } from './components/LandingPage';
 import { RequestsPage } from './components/RequestsPage';
+import { WorkflowsPage } from './components/WorkflowsPage';
 import './styles.css';
 import type { AppRoute, Doctor, DoctorPoolState } from './types';
 
@@ -15,6 +16,10 @@ if (!app) {
 function getRoute(): AppRoute {
   if (window.location.pathname === '/requests') {
     return '/requests';
+  }
+
+  if (window.location.pathname === '/workflows') {
+    return '/workflows';
   }
 
   return window.location.pathname === '/doctors' ? '/doctors' : '/';
@@ -68,6 +73,10 @@ function App() {
 
   if (route === '/requests') {
     return <RequestsPage onNavigate={setRoute} />;
+  }
+
+  if (route === '/workflows') {
+    return <WorkflowsPage onNavigate={setRoute} />;
   }
 
   return route === '/doctors' ? (
