@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { formatLabel } from '../format';
 import type { AppRoute, RequestSubmissionResult } from '../types';
 import { Navigation } from './Navigation';
 
@@ -88,7 +89,7 @@ export function RequestsPage({ onNavigate }: RequestsPageProps) {
         {submissionState.status === 'success' ? (
           <aside className="routing-result" aria-live="polite">
             <span className="result-label">Routed to</span>
-            <strong>{submissionState.result.routingDecision.route.split('_').join(' ')}</strong>
+            <strong>{formatLabel(submissionState.result.routingDecision.route)}</strong>
             <p>{submissionState.result.routingDecision.reason}</p>
             <dl>
               <div><dt>Priority</dt><dd>{submissionState.result.routingDecision.priority}</dd></div>

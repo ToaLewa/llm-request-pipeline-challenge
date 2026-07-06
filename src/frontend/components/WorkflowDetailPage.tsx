@@ -1,4 +1,5 @@
 import { useEffect, useState, type MouseEvent } from 'react';
+import { formatLabel } from '../format';
 import type { AppRoute, WorkflowDetail, WorkflowDetailState, WorkflowTaskSummary } from '../types';
 import { Navigation } from './Navigation';
 
@@ -129,10 +130,6 @@ function WorkflowTaskRow({ task }: { task: WorkflowTaskSummary }) {
       <td>{formatDate(task.createdAt)}</td>
     </tr>
   );
-}
-
-function formatLabel(value: string | null): string {
-  return value ? value.split('_').join(' ') : 'Pending';
 }
 
 function formatDate(value: string): string {
