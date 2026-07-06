@@ -15,7 +15,10 @@ export function DoctorsPage({ doctorPoolState, onNavigate }: DoctorsPageProps) {
     <section className="page-shell doctors-page">
       <Navigation route="/doctors" onNavigate={onNavigate} />
       <header className="hero">
-        <p className="eyebrow">Doctor Assignment</p>
+        <p className="eyebrow header-label">
+          <span className="logo-mark" aria-hidden="true"></span>
+          <span>Doctor Assignment</span>
+        </p>
         <div className="hero-grid">
           <div>
             <h1>Doctor Pool</h1>

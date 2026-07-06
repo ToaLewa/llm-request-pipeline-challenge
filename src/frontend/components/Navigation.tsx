@@ -15,7 +15,10 @@ export function Navigation({ route, onNavigate }: NavigationProps) {
 
   return (
     <nav className="site-nav" aria-label="Primary navigation">
-      <a href="/" className="brand" onClick={(event) => handleClick(event, '/')}>Request Pipeline</a>
+      <a href="/" className="brand" onClick={(event) => handleClick(event, '/')}>
+        <span className="logo-mark" aria-hidden="true"></span>
+        <span>Request Pipeline</span>
+      </a>
       <div className="nav-links">
         <a href="/" className={route === '/' ? 'is-active' : ''} onClick={(event) => handleClick(event, '/')}>Home</a>
         <a href="/requests" className={route === '/requests' ? 'is-active' : ''} onClick={(event) => handleClick(event, '/requests')}>New Request</a>

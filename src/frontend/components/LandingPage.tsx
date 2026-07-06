@@ -10,7 +10,10 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
     <section className="page-shell landing-page">
       <Navigation route="/" onNavigate={onNavigate} />
       <header className="landing-hero">
-        <p className="eyebrow">LLM Request Pipeline</p>
+        <p className="eyebrow header-label">
+          <span className="logo-mark" aria-hidden="true"></span>
+          <span>LLM Request Pipeline</span>
+        </p>
         <h1>Route requests to the right clinical workflow.</h1>
         <p className="intro">
           Classify incoming operational requests, identify doctor-assignment cases, and prepare structured context for candidate matching.

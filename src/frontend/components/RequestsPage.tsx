@@ -54,7 +54,10 @@ export function RequestsPage({ onNavigate }: RequestsPageProps) {
       <main className="request-workspace">
         <section className="request-panel" aria-labelledby="request-title">
           <div className="request-heading">
-            <p className="eyebrow">New Request</p>
+            <p className="eyebrow header-label">
+              <span className="logo-mark" aria-hidden="true"></span>
+              <span>New Request</span>
+            </p>
             <p className="intro">Describe your request in plain language, and we will route this to the appropriate team.</p>
           </div>
 

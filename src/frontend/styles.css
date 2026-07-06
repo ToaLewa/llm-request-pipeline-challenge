@@ -65,9 +65,41 @@ a {
 }
 
 .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
   color: #10201d;
   font-weight: 900;
   letter-spacing: -0.04em;
+}
+
+.logo-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 0.65rem;
+  color: #ecfdf5;
+  background: #0f766e;
+  font-family: "Symbols Nerd Font", "Symbols Nerd Font Mono", "JetBrainsMono Nerd Font", monospace;
+  font-size: 1.05rem;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+  box-shadow: 0 0.75rem 1.5rem rgba(15, 118, 110, 0.2);
+}
+
+.header-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.header-label .logo-mark {
+  width: 2.15rem;
+  height: 2.15rem;
+  border-radius: 0.8rem;
+  font-size: 1.2rem;
 }
 
 .nav-links {
