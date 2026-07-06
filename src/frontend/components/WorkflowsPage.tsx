@@ -1,6 +1,7 @@
 import { useEffect, useState, type MouseEvent } from 'react';
 import { formatLabel } from '../format';
 import type { AppRoute, WorkflowListState, WorkflowSummary } from '../types';
+import { useAppNavigation } from '../useAppNavigation';
 import { Navigation } from './Navigation';
 
 type WorkflowsPageProps = {
@@ -103,12 +104,11 @@ export function WorkflowsPage({ onNavigate }: WorkflowsPageProps) {
 }
 
 function WorkflowTableRow({ workflow, onNavigate }: { workflow: WorkflowSummary; onNavigate: (route: AppRoute) => void }) {
-  const workflowRoute = `/workflows/${workflow.id}` as const;
+  const { handleNavigationClick } = useAppNavigation(onNavigate);
+  const workflowRoute: AppRoute = `/workflows/${workflow.id}`;
 
   function handleClick(event: MouseEvent<HTMLAnchorElement>): void {
-    event.preventDefault();
-    window.history.pushState({}, '', workflowRoute);
-    onNavigate(workflowRoute);
+    handleNavigationClick(event, workflowRoute);
   }
 
   return (

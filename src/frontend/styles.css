@@ -398,6 +398,27 @@ p {
   font-weight: 900;
 }
 
+.workflow-result {
+  cursor: pointer;
+  position: relative;
+}
+
+.workflow-result-link {
+  border-radius: inherit;
+  inset: 0;
+  position: absolute;
+}
+
+.workflow-result:hover dd,
+.workflow-result:focus-within dd {
+  text-decoration: underline;
+}
+
+.workflow-result-link:focus-visible {
+  outline: 3px solid rgba(15, 118, 110, 0.35);
+  outline-offset: 3px;
+}
+
 .request-error {
   border: 1px solid rgba(154, 52, 18, 0.2);
   color: #9a3412;

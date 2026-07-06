@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { formatLabel } from '../format';
 import type { AppRoute, RequestSubmissionResult } from '../types';
+import { useAppNavigation } from '../useAppNavigation';
 import { Navigation } from './Navigation';
 
 type RequestsPageProps = {
@@ -16,6 +17,7 @@ type SubmissionState =
 export function RequestsPage({ onNavigate }: RequestsPageProps) {
   const [requestText, setRequestText] = useState('');
   const [submissionState, setSubmissionState] = useState<SubmissionState>({ status: 'idle' });
+  const { handleNavigationClick } = useAppNavigation(onNavigate);
   const isSubmitting = submissionState.status === 'submitting';
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
@@ -94,7 +96,16 @@ export function RequestsPage({ onNavigate }: RequestsPageProps) {
             <dl>
               <div><dt>Priority</dt><dd>{submissionState.result.routingDecision.priority}</dd></div>
               <div><dt>Confidence</dt><dd>{Math.round(submissionState.result.routingDecision.confidence * 100)}%</dd></div>
-              <div><dt>Workflow</dt><dd>#{submissionState.result.workflowId}</dd></div>
+              <div className="workflow-result">
+                <a
+                  className="workflow-result-link"
+                  href={getWorkflowRoute(submissionState.result.workflowId)}
+                  aria-label={`Open workflow ${submissionState.result.workflowId}`}
+                  onClick={(event) => handleNavigationClick(event, getWorkflowRoute(submissionState.result.workflowId))}
+                />
+                <dt>Workflow</dt>
+                <dd>#{submissionState.result.workflowId}</dd>
+              </div>
             </dl>
           </aside>
         ) : null}
@@ -103,4 +114,8 @@ export function RequestsPage({ onNavigate }: RequestsPageProps) {
       </main>
     </section>
   );
+}
+
+function getWorkflowRoute(workflowId: number): AppRoute {
+  return `/workflows/${workflowId}`;
 }
