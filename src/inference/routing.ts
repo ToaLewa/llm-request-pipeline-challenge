@@ -50,44 +50,6 @@ export type OpenAIRoutingDecisionClientOptions = {
 
 const defaultOpenAIModel = 'gpt-4.1-mini';
 
-const routingDecisionJsonSchema = {
-  type: 'object',
-  additionalProperties: false,
-  required: [
-    'route',
-    'confidence',
-    'reason',
-    'caseSummary',
-    'caseType',
-    'priority',
-    'requiredSpecialties',
-    'requiredSkills',
-    'patientContext',
-  ],
-  properties: {
-    route: { type: 'string', enum: requestRoutes },
-    confidence: { type: 'number', minimum: 0, maximum: 1 },
-    reason: { type: 'string' },
-    caseSummary: { type: 'string' },
-    caseType: { type: ['string', 'null'] },
-    priority: { type: 'string', enum: requestPriorities },
-    requiredSpecialties: {
-      type: 'array',
-      items: { type: 'string' },
-    },
-    requiredSkills: {
-      type: 'array',
-      items: { type: 'string' },
-    },
-    patientContext: {
-      type: 'object',
-      additionalProperties: {
-        type: ['string', 'number', 'boolean', 'null'],
-      },
-    },
-  },
-} as const;
-
 let envLoaded = false;
 
 function loadEnvFile(): void {
@@ -127,6 +89,13 @@ export class OpenAIRoutingDecisionClient implements RoutingDecisionClient {
             {
               type: 'input_text',
               text: JSON.stringify({
+                instruction: [
+                  'Return a JSON object matching the outputSchema.',
+                  `route must be exactly one of: ${requestRoutes.join(', ')}.`,
+                  `priority must be exactly one of: ${requestPriorities.join(', ')}.`,
+                  'Use route unknown when the request cannot be classified.',
+                  'Use priority normal unless the request clearly indicates low or urgent priority.',
+                ].join(' '),
                 rawRequest: input.rawRequest,
                 outputSchema: input.outputSchema,
               }),
@@ -136,10 +105,7 @@ export class OpenAIRoutingDecisionClient implements RoutingDecisionClient {
       ],
       text: {
         format: {
-          type: 'json_schema',
-          name: 'routing_decision',
-          strict: true,
-          schema: routingDecisionJsonSchema,
+          type: 'json_object',
         },
       },
     });
