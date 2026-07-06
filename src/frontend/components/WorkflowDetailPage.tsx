@@ -83,7 +83,6 @@ export function WorkflowDetailPage({ workflowId, onNavigate }: WorkflowDetailPag
             <tr>
               <th scope="col">Task</th>
               <th scope="col">Status</th>
-              <th scope="col">Route</th>
               <th scope="col">Priority</th>
               <th scope="col">Request</th>
               <th scope="col">Reason</th>
@@ -123,7 +122,6 @@ function WorkflowTaskRow({ task }: { task: WorkflowTaskSummary }) {
         <span className="workflow-task-status">Task ID #{task.id}</span>
       </th>
       <td><span className="status-pill status-available">{formatLabel(task.status)}</span></td>
-      <td>{formatLabel(task.route)}</td>
       <td>{formatLabel(task.priority)}</td>
       <td>{task.requestId ? `#${task.requestId}` : 'Automated'}</td>
       <td><span className="workflow-summary">{task.reason ?? task.caseSummary ?? 'No reason recorded'}</span></td>
