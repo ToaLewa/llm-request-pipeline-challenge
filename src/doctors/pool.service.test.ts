@@ -1,0 +1,48 @@
+import { describe, expect, it, vi } from 'vitest';
+import { getDoctorPool, type DoctorPoolQueryClient } from './pool.service';
+
+describe('getDoctorPool', () => {
+  it('loads doctors with normalized skill rows and groups display values by category', async () => {
+    const findMany = vi.fn<DoctorPoolQueryClient['doctor']['findMany']>().mockResolvedValue([
+      {
+        id: 'doc_chen',
+        name: 'Dr. Emily Chen',
+        description: 'Renal pathologist focused on autoimmune kidney disease.',
+        ptoStatus: false,
+        currentLoad: 4,
+        active: true,
+        skills: [
+          { skill: { name: 'Renal Pathology', category: 'specialty' } },
+          { skill: { name: 'Renal Biopsy', category: 'case_type' } },
+          { skill: { name: 'Lupus Nephritis', category: 'clinical_skill' } },
+        ],
+      },
+    ]);
+
+    const doctors = await getDoctorPool({ client: { doctor: { findMany } } });
+
+    expect(findMany).toHaveBeenCalledWith({
+      include: {
+        skills: {
+          include: {
+            skill: true,
+          },
+        },
+      },
+      orderBy: [{ active: 'desc' }, { ptoStatus: 'asc' }, { name: 'asc' }],
+    });
+    expect(doctors).toEqual([
+      {
+        id: 'doc_chen',
+        name: 'Dr. Emily Chen',
+        specialties: ['Renal Pathology'],
+        skills: ['Lupus Nephritis'],
+        caseTypes: ['Renal Biopsy'],
+        description: 'Renal pathologist focused on autoimmune kidney disease.',
+        ptoStatus: false,
+        currentLoad: 4,
+        active: true,
+      },
+    ]);
+  });
+});

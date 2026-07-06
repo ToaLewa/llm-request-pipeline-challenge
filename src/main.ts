@@ -8,46 +8,68 @@ if (!app) {
 
 const appRoot = app;
 
-const doctors = [
-  {
-    name: 'Dr. Emily Chen',
-    description: 'Renal pathologist focused on autoimmune kidney disease and complex biopsy interpretation.',
-    ptoStatus: false,
-    active: true,
-    currentLoad: 4,
-    specialties: ['Renal Pathology', 'Nephropathology'],
-    skills: ['Lupus Nephritis', 'Glomerulonephritis'],
-    caseTypes: ['Renal Biopsy'],
-  },
-  {
-    name: 'Dr. Ravi Patel',
-    description: 'General surgical pathologist with broad biopsy review experience and GI pathology coverage.',
-    ptoStatus: false,
-    active: true,
-    currentLoad: 2,
-    specialties: ['General Surgical Pathology'],
-    skills: ['GI Pathology'],
-    caseTypes: ['Biopsy Review'],
-  },
-  {
-    name: 'Dr. Maria Gomez',
-    description: 'Renal pathology specialist with glomerulonephritis expertise, currently unavailable for assignment.',
-    ptoStatus: true,
-    active: true,
-    currentLoad: 1,
-    specialties: ['Renal Pathology'],
-    skills: ['Glomerulonephritis'],
-    caseTypes: ['Renal Biopsy'],
-  },
-];
+type Doctor = {
+  id: string;
+  name: string;
+  description: string;
+  ptoStatus: boolean;
+  active: boolean;
+  currentLoad: number;
+  specialties: string[];
+  skills: string[];
+  caseTypes: string[];
+};
+
+type DoctorPoolState =
+  | { status: 'loading'; doctors: Doctor[]; error?: never }
+  | { status: 'loaded'; doctors: Doctor[]; error?: never }
+  | { status: 'error'; doctors: Doctor[]; error: string };
 
 type AppRoute = '/' | '/doctors';
 
-function renderTags(values: string[]): string {
-  return values.map((value) => `<span class="tag">${value}</span>`).join('');
+let doctorPoolState: DoctorPoolState = { status: 'loading', doctors: [] };
+
+async function loadDoctorPool(): Promise<void> {
+  doctorPoolState = { status: 'loading', doctors: doctorPoolState.doctors };
+  renderApp();
+
+  try {
+    const response = await fetch('/api/doctors');
+
+    if (!response.ok) {
+      throw new Error(`Doctor pool request failed with ${response.status}.`);
+    }
+
+    const payload = (await response.json()) as { doctors?: Doctor[] };
+    doctorPoolState = { status: 'loaded', doctors: payload.doctors ?? [] };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Doctor pool request failed.';
+    doctorPoolState = { status: 'error', doctors: doctorPoolState.doctors, error: message };
+  }
+
+  if (getRoute() === '/doctors') {
+    renderApp();
+  }
 }
 
-function availabilityLabel(doctor: (typeof doctors)[number]): string {
+function renderTags(values: string[]): string {
+  return values.map((value) => `<span class="tag">${escapeHtml(value)}</span>`).join('');
+}
+
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"]/g, (character) => {
+    const replacements: Record<string, string> = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+    };
+
+    return replacements[character];
+  });
+}
+
+function availabilityLabel(doctor: Doctor): string {
   if (!doctor.active) {
     return 'Inactive';
   }
@@ -108,6 +130,10 @@ function renderLandingPage(): string {
 }
 
 function renderDoctorsPage(): string {
+  const { doctors } = doctorPoolState;
+  const doctorCards = doctors.map(renderDoctorCard).join('');
+  const statusContent = renderDoctorPoolStatus();
+
   return `
     <section class="page-shell doctors-page">
       ${renderNavigation('/doctors')}
@@ -129,42 +155,56 @@ function renderDoctorsPage(): string {
       </header>
 
       <section class="doctor-grid" aria-label="Doctors">
-        ${doctors
-          .map(
-            (doctor) => `
-              <article class="doctor-card ${doctor.ptoStatus ? 'is-muted' : ''}">
-                <div class="doctor-card-header">
-                  <div>
-                    <p class="doctor-role">Pathologist</p>
-                    <h2>${doctor.name}</h2>
-                  </div>
-                  <span class="status-pill ${doctor.ptoStatus ? 'status-pto' : 'status-available'}">
-                    ${availabilityLabel(doctor)}
-                  </span>
-                </div>
-                <p class="doctor-description">${doctor.description}</p>
-                <div class="load-meter" aria-label="Current load ${doctor.currentLoad}">
-                  <span>Current load</span>
-                  <strong>${doctor.currentLoad}</strong>
-                </div>
-                <div class="skill-section">
-                  <h3>Specialties</h3>
-                  <div class="tag-list">${renderTags(doctor.specialties)}</div>
-                </div>
-                <div class="skill-section">
-                  <h3>Clinical Skills</h3>
-                  <div class="tag-list">${renderTags(doctor.skills)}</div>
-                </div>
-                <div class="skill-section">
-                  <h3>Case Types</h3>
-                  <div class="tag-list">${renderTags(doctor.caseTypes)}</div>
-                </div>
-              </article>
-            `,
-          )
-          .join('')}
+        ${doctorCards || statusContent}
       </section>
     </section>
+  `;
+}
+
+function renderDoctorPoolStatus(): string {
+  if (doctorPoolState.status === 'error') {
+    return `<p class="doctor-grid-message">Unable to load doctors from the database. ${escapeHtml(doctorPoolState.error)}</p>`;
+  }
+
+  if (doctorPoolState.status === 'loading') {
+    return '<p class="doctor-grid-message">Loading doctors from the database...</p>';
+  }
+
+  return '<p class="doctor-grid-message">No doctors found in the database.</p>';
+}
+
+function renderDoctorCard(doctor: Doctor): string {
+  const statusClass = doctor.ptoStatus || !doctor.active ? 'status-pto' : 'status-available';
+
+  return `
+    <article class="doctor-card ${doctor.ptoStatus || !doctor.active ? 'is-muted' : ''}">
+      <div class="doctor-card-header">
+        <div>
+          <p class="doctor-role">Pathologist</p>
+          <h2>${escapeHtml(doctor.name)}</h2>
+        </div>
+        <span class="status-pill ${statusClass}">
+          ${availabilityLabel(doctor)}
+        </span>
+      </div>
+      <p class="doctor-description">${escapeHtml(doctor.description)}</p>
+      <div class="load-meter" aria-label="Current load ${doctor.currentLoad}">
+        <span>Current load</span>
+        <strong>${doctor.currentLoad}</strong>
+      </div>
+      <div class="skill-section">
+        <h3>Specialties</h3>
+        <div class="tag-list">${renderTags(doctor.specialties)}</div>
+      </div>
+      <div class="skill-section">
+        <h3>Clinical Skills</h3>
+        <div class="tag-list">${renderTags(doctor.skills)}</div>
+      </div>
+      <div class="skill-section">
+        <h3>Case Types</h3>
+        <div class="tag-list">${renderTags(doctor.caseTypes)}</div>
+      </div>
+    </article>
   `;
 }
 
@@ -188,3 +228,4 @@ document.addEventListener('click', (event) => {
 window.addEventListener('popstate', renderApp);
 
 renderApp();
+void loadDoctorPool();

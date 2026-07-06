@@ -7,7 +7,7 @@ export const requestRoutes = [
   'billing',
   'records_request',
   'scheduling',
-  'unknown',
+  'unknown_human_review',
 ] as const;
 
 export const requestPriorities = ['low', 'normal', 'urgent'] as const;
