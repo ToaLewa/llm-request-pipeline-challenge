@@ -226,6 +226,46 @@ p {
   box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
 }
 
+.request-thinking {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 1rem;
+  min-height: clamp(18rem, 42vh, 32rem);
+  padding: 2rem;
+  border: 1px solid rgba(15, 118, 110, 0.14);
+  border-radius: 1.5rem;
+  color: #475569;
+  background: #ffffff;
+  text-align: center;
+}
+
+.thinking-spinner {
+  width: 4.5rem;
+  height: 4.5rem;
+  border: 0.45rem solid #ccfbf1;
+  border-top-color: #0f766e;
+  border-radius: 999px;
+  animation: request-spin 0.85s linear infinite;
+}
+
+.request-thinking strong {
+  color: #10201d;
+  font-size: 1.5rem;
+  letter-spacing: -0.04em;
+}
+
+.request-thinking p {
+  color: #64748b;
+  line-height: 1.6;
+}
+
+@keyframes request-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .composer-actions {
   display: flex;
   align-items: center;

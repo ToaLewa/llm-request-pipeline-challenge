@@ -59,21 +59,28 @@ export function RequestsPage({ onNavigate }: RequestsPageProps) {
             <p className="intro">Describe the incoming request in plain language. The backend will classify it, create the first workflow task, and return the routing decision.</p>
           </div>
 
-          <form className="request-composer" onSubmit={handleSubmit}>
-            <label className="sr-only" htmlFor="request-text">Request details</label>
-            <textarea
-              id="request-text"
-              value={requestText}
-              onChange={(event) => setRequestText(event.target.value)}
-              placeholder="Paste or type the full request here..."
-              rows={12}
-              disabled={isSubmitting}
-            />
-            <div className="composer-actions">
-              <span>{requestText.trim().length} characters ready for routing</span>
-              <button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Routing...' : 'Route Request'}</button>
+          {isSubmitting ? (
+            <div className="request-thinking" role="status" aria-live="polite">
+              <span className="thinking-spinner" aria-hidden="true" />
+              <strong>Routing request</strong>
+              <p>The server is thinking through the best workflow.</p>
             </div>
-          </form>
+          ) : (
+            <form className="request-composer" onSubmit={handleSubmit}>
+              <label className="sr-only" htmlFor="request-text">Request details</label>
+              <textarea
+                id="request-text"
+                value={requestText}
+                onChange={(event) => setRequestText(event.target.value)}
+                placeholder="Paste or type the full request here..."
+                rows={12}
+              />
+              <div className="composer-actions">
+                <span>{requestText.trim().length} characters ready for routing</span>
+                <button type="submit">Route Request</button>
+              </div>
+            </form>
+          )}
         </section>
 
         {submissionState.status === 'success' ? (
