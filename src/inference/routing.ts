@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import { z } from 'zod';
+import { loadEnvFile } from '../utils/env';
 
 export const requestRoutes = [
   'doctor_assignment',
@@ -49,17 +50,6 @@ export type OpenAIRoutingDecisionClientOptions = {
 };
 
 const defaultOpenAIModel = 'gpt-4.1-mini';
-
-let envLoaded = false;
-
-function loadEnvFile(): void {
-  if (envLoaded) {
-    return;
-  }
-
-  envLoaded = true;
-  process.loadEnvFile?.();
-}
 
 export class OpenAIRoutingDecisionClient implements RoutingDecisionClient {
   private readonly client: OpenAI;
