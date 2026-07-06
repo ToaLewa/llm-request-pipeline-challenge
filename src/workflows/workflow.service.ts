@@ -2,27 +2,27 @@ import { getPrisma } from '../database/client';
 import type { RoutingDecision } from '../inference/routing';
 
 export type InitialWorkflowResult = {
-  workflowId: string;
-  requestId: string;
-  taskId: string;
+  workflowId: number;
+  requestId: number;
+  taskId: number;
 };
 
 type WorkflowRecord = {
-  id: string;
+  id: number;
 };
 
 type WorkflowRequestRecord = {
-  id: string;
+  id: number;
 };
 
 type WorkflowTaskRecord = {
-  id: string;
+  id: number;
 };
 
 type InitialWorkflowTransactionClient = {
   workflowRequest: {
     create(args: { data: { rawRequest: string; source: string } }): Promise<WorkflowRequestRecord>;
-    update(args: { where: { id: string }; data: { workflowId: string } }): Promise<WorkflowRequestRecord>;
+    update(args: { where: { id: number }; data: { workflowId: number } }): Promise<WorkflowRequestRecord>;
   };
   workflow: {
     create(args: { data: Record<string, never> }): Promise<WorkflowRecord>;
@@ -30,8 +30,8 @@ type InitialWorkflowTransactionClient = {
   workflowTask: {
     create(args: {
       data: {
-        workflowId: string;
-        requestId: string;
+        workflowId: number;
+        requestId: number;
         taskType: 'routing_decision';
         sequence: 1;
         status: 'completed';

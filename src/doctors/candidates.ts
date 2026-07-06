@@ -10,7 +10,7 @@ type CandidateSkill = {
 };
 
 type CandidateDoctorRecord = {
-  id: string;
+  id: number;
   name: string;
   description: string;
   ptoStatus: boolean;
@@ -22,7 +22,7 @@ type CandidateDoctorRecord = {
 };
 
 export type CandidateDoctorPayload = {
-  id: string;
+  id: number;
   name: string;
   specialties: string[];
   skills: string[];

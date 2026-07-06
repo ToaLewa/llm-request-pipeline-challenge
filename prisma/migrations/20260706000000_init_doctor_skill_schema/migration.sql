@@ -3,7 +3,7 @@ CREATE TYPE "SkillCategory" AS ENUM ('specialty', 'clinical_skill', 'case_type')
 
 -- CreateTable
 CREATE TABLE "Doctor" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "ptoStatus" BOOLEAN NOT NULL DEFAULT false,
@@ -17,7 +17,7 @@ CREATE TABLE "Doctor" (
 
 -- CreateTable
 CREATE TABLE "Skill" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "skillCode" TEXT NOT NULL,
     "category" "SkillCategory" NOT NULL DEFAULT 'clinical_skill',
@@ -29,8 +29,8 @@ CREATE TABLE "Skill" (
 
 -- CreateTable
 CREATE TABLE "DoctorSkill" (
-    "doctorId" TEXT NOT NULL,
-    "skillId" TEXT NOT NULL,
+    "doctorId" INTEGER NOT NULL,
+    "skillId" INTEGER NOT NULL,
 
     CONSTRAINT "DoctorSkill_pkey" PRIMARY KEY ("doctorId","skillId")
 );

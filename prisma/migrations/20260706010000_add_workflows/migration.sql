@@ -1,6 +1,6 @@
 -- CreateTable
 CREATE TABLE "Workflow" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'active',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -10,8 +10,8 @@ CREATE TABLE "Workflow" (
 
 -- CreateTable
 CREATE TABLE "WorkflowRequest" (
-    "id" TEXT NOT NULL,
-    "workflowId" TEXT,
+    "id" SERIAL NOT NULL,
+    "workflowId" INTEGER,
     "rawRequest" TEXT NOT NULL,
     "source" TEXT NOT NULL DEFAULT 'user',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -21,9 +21,9 @@ CREATE TABLE "WorkflowRequest" (
 
 -- CreateTable
 CREATE TABLE "WorkflowTask" (
-    "id" TEXT NOT NULL,
-    "workflowId" TEXT NOT NULL,
-    "requestId" TEXT,
+    "id" SERIAL NOT NULL,
+    "workflowId" INTEGER NOT NULL,
+    "requestId" INTEGER,
     "taskType" TEXT NOT NULL,
     "sequence" INTEGER NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'completed',

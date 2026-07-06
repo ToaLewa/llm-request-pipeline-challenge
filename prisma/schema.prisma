@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Doctor {
-  id          String        @id @default(cuid())
+  id          Int           @id @default(autoincrement())
   name        String
   description String
   ptoStatus   Boolean       @default(false)
@@ -22,7 +22,7 @@ model Doctor {
 }
 
 model Skill {
-  id        String        @id @default(cuid())
+  id        Int           @id @default(autoincrement())
   name      String
   skillCode String        @unique
   category  SkillCategory @default(clinical_skill)
@@ -34,8 +34,8 @@ model Skill {
 }
 
 model DoctorSkill {
-  doctorId String
-  skillId  String
+  doctorId Int
+  skillId  Int
 
   doctor   Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
   skill    Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
@@ -45,7 +45,7 @@ model DoctorSkill {
 }
 
 model Workflow {
-  id        String            @id @default(cuid())
+  id        Int               @id @default(autoincrement())
   status    String            @default("active")
 
   requests  WorkflowRequest[]
@@ -58,8 +58,8 @@ model Workflow {
 }
 
 model WorkflowRequest {
-  id         String         @id @default(cuid())
-  workflowId String?
+  id         Int            @id @default(autoincrement())
+  workflowId Int?
   rawRequest String
   source     String         @default("user")
 
@@ -72,9 +72,9 @@ model WorkflowRequest {
 }
 
 model WorkflowTask {
-  id         String           @id @default(cuid())
-  workflowId String
-  requestId  String?
+  id         Int              @id @default(autoincrement())
+  workflowId Int
+  requestId  Int?
   taskType   String
   sequence   Int
   status     String           @default("completed")

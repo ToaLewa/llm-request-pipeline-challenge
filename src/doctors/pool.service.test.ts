@@ -5,7 +5,7 @@ describe('getDoctorPool', () => {
   it('loads doctors with normalized skill rows and groups display values by category', async () => {
     const findMany = vi.fn<DoctorPoolQueryClient['doctor']['findMany']>().mockResolvedValue([
       {
-        id: 'doc_chen',
+        id: 1,
         name: 'Dr. Emily Chen',
         description: 'Renal pathologist focused on autoimmune kidney disease.',
         ptoStatus: false,
@@ -33,7 +33,7 @@ describe('getDoctorPool', () => {
     });
     expect(doctors).toEqual([
       {
-        id: 'doc_chen',
+        id: 1,
         name: 'Dr. Emily Chen',
         specialties: ['Renal Pathology'],
         skills: ['Lupus Nephritis'],

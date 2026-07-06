@@ -63,7 +63,6 @@ const skills = [
 
 const doctors = [
   {
-    id: 'doc_chen',
     name: 'Dr. Emily Chen',
     description: 'Renal pathologist focused on autoimmune kidney disease and complex biopsy interpretation.',
     ptoStatus: false,
@@ -72,7 +71,6 @@ const doctors = [
     skillCodes: ['renal-pathology', 'nephropathology', 'renal-biopsy', 'lupus-nephritis', 'glomerulonephritis'],
   },
   {
-    id: 'doc_patel',
     name: 'Dr. Ravi Patel',
     description: 'General surgical pathologist with broad biopsy review experience and GI pathology coverage.',
     ptoStatus: false,
@@ -81,7 +79,6 @@ const doctors = [
     skillCodes: ['general-surgical-pathology', 'biopsy-review', 'gi-pathology'],
   },
   {
-    id: 'doc_gomez',
     name: 'Dr. Maria Gomez',
     description: 'Renal pathology specialist with glomerulonephritis expertise, currently unavailable for assignment.',
     ptoStatus: true,
@@ -90,7 +87,6 @@ const doctors = [
     skillCodes: ['renal-pathology', 'renal-biopsy', 'glomerulonephritis'],
   },
   {
-    id: 'doc_williams',
     name: 'Dr. Aisha Williams',
     description: 'GI pathologist specializing in inflammatory bowel disease and dysplasia surveillance.',
     ptoStatus: false,
@@ -99,7 +95,6 @@ const doctors = [
     skillCodes: ['gastrointestinal-pathology', 'biopsy-review', 'gi-pathology', 'inflammatory-bowel-disease', 'colon-dysplasia'],
   },
   {
-    id: 'doc_kim',
     name: 'Dr. Daniel Kim',
     description: 'Dermatopathologist focused on melanocytic lesions and complex inflammatory skin disease.',
     ptoStatus: false,
@@ -108,7 +103,6 @@ const doctors = [
     skillCodes: ['dermatopathology', 'skin-biopsy', 'melanocytic-lesions', 'immunohistochemistry'],
   },
   {
-    id: 'doc_nguyen',
     name: 'Dr. Linh Nguyen',
     description: 'Hematopathologist with leukemia and lymphoma classification expertise.',
     ptoStatus: false,
@@ -117,7 +111,6 @@ const doctors = [
     skillCodes: ['hematopathology', 'bone-marrow-biopsy', 'lymph-node-biopsy', 'leukemia-workup', 'lymphoma-classification', 'flow-cytometry-correlation'],
   },
   {
-    id: 'doc_smith',
     name: 'Dr. Laura Smith',
     description: 'Cytopathologist covering thyroid, pulmonary, and head and neck aspiration cases.',
     ptoStatus: false,
@@ -126,7 +119,6 @@ const doctors = [
     skillCodes: ['cytopathology', 'fine-needle-aspiration', 'thyroid-fna', 'immunohistochemistry'],
   },
   {
-    id: 'doc_brown',
     name: 'Dr. Marcus Brown',
     description: 'Breast pathologist experienced in core biopsies, resections, and biomarker interpretation.',
     ptoStatus: false,
@@ -135,7 +127,6 @@ const doctors = [
     skillCodes: ['breast-pathology', 'needle-core-biopsy', 'resection-review', 'breast-biomarkers'],
   },
   {
-    id: 'doc_garcia',
     name: 'Dr. Sofia Garcia',
     description: 'Thoracic pathologist focused on lung tumor typing and small biopsy triage.',
     ptoStatus: false,
@@ -144,7 +135,6 @@ const doctors = [
     skillCodes: ['thoracic-pathology', 'needle-core-biopsy', 'lung-tumor-typing', 'molecular-pathology', 'ngs-interpretation'],
   },
   {
-    id: 'doc_miller',
     name: 'Dr. Hannah Miller',
     description: 'Neuropathologist with experience in brain tumor classification and intraoperative consultation.',
     ptoStatus: false,
@@ -153,7 +143,6 @@ const doctors = [
     skillCodes: ['neuropathology', 'frozen-section', 'brain-tumor-classification', 'molecular-pathology'],
   },
   {
-    id: 'doc_davis',
     name: 'Dr. Owen Davis',
     description: 'Molecular pathologist supporting oncology sequencing and biomarker interpretation.',
     ptoStatus: false,
@@ -162,7 +151,6 @@ const doctors = [
     skillCodes: ['molecular-pathology', 'ngs-interpretation', 'lung-tumor-typing', 'breast-biomarkers'],
   },
   {
-    id: 'doc_martinez',
     name: 'Dr. Elena Martinez',
     description: 'Gynecologic pathologist specializing in endometrial carcinoma and frozen section support.',
     ptoStatus: false,
@@ -171,7 +159,6 @@ const doctors = [
     skillCodes: ['gynecologic-pathology', 'resection-review', 'frozen-section', 'endometrial-cancer'],
   },
   {
-    id: 'doc_anderson',
     name: 'Dr. Peter Anderson',
     description: 'Genitourinary pathologist focused on prostate grading and renal mass resections.',
     ptoStatus: false,
@@ -180,7 +167,6 @@ const doctors = [
     skillCodes: ['genitourinary-pathology', 'needle-core-biopsy', 'resection-review', 'prostate-grading'],
   },
   {
-    id: 'doc_taylor',
     name: 'Dr. Maya Taylor',
     description: 'Pediatric pathologist covering solid tumors, autopsy review, and complex consults.',
     ptoStatus: false,
@@ -189,7 +175,6 @@ const doctors = [
     skillCodes: ['pediatric-pathology', 'pediatric-solid-tumors', 'autopsy-review', 'frozen-section'],
   },
   {
-    id: 'doc_thompson',
     name: 'Dr. Claire Thompson',
     description: 'Renal and transplant pathologist with strong biopsy interpretation experience.',
     ptoStatus: false,
@@ -198,7 +183,6 @@ const doctors = [
     skillCodes: ['renal-pathology', 'nephropathology', 'renal-biopsy', 'transplant-pathology'],
   },
   {
-    id: 'doc_moore',
     name: 'Dr. Jamal Moore',
     description: 'General surgical pathologist handling frozen sections, resections, and infectious disease cases.',
     ptoStatus: false,
@@ -207,7 +191,6 @@ const doctors = [
     skillCodes: ['general-surgical-pathology', 'frozen-section', 'resection-review', 'infectious-disease-pathology'],
   },
   {
-    id: 'doc_jackson',
     name: 'Dr. Priya Jackson',
     description: 'Dermatopathologist with cutaneous lymphoma and melanocytic lesion expertise.',
     ptoStatus: false,
@@ -216,7 +199,6 @@ const doctors = [
     skillCodes: ['dermatopathology', 'skin-biopsy', 'cutaneous-lymphoma', 'melanocytic-lesions', 'lymphoma-classification'],
   },
   {
-    id: 'doc_white',
     name: 'Dr. Ethan White',
     description: 'GI pathologist focused on colon dysplasia, IBD, and resection correlation.',
     ptoStatus: true,
@@ -225,7 +207,6 @@ const doctors = [
     skillCodes: ['gastrointestinal-pathology', 'resection-review', 'inflammatory-bowel-disease', 'colon-dysplasia'],
   },
   {
-    id: 'doc_harris',
     name: 'Dr. Nora Harris',
     description: 'Cytopathologist specializing in Pap cytology and thyroid FNA quality review.',
     ptoStatus: false,
@@ -234,7 +215,6 @@ const doctors = [
     skillCodes: ['cytopathology', 'fine-needle-aspiration', 'pap-cytology', 'thyroid-fna'],
   },
   {
-    id: 'doc_clark',
     name: 'Dr. Samuel Clark',
     description: 'Hematopathologist supporting marrow biopsies, lymphoma workups, and flow correlation.',
     ptoStatus: false,
@@ -243,7 +223,6 @@ const doctors = [
     skillCodes: ['hematopathology', 'bone-marrow-biopsy', 'lymph-node-biopsy', 'lymphoma-classification', 'flow-cytometry-correlation'],
   },
   {
-    id: 'doc_lewis',
     name: 'Dr. Grace Lewis',
     description: 'Breast and gynecologic pathologist with biomarker and endometrial cancer expertise.',
     ptoStatus: false,
@@ -252,7 +231,6 @@ const doctors = [
     skillCodes: ['breast-pathology', 'gynecologic-pathology', 'needle-core-biopsy', 'breast-biomarkers', 'endometrial-cancer'],
   },
   {
-    id: 'doc_robinson',
     name: 'Dr. Victor Robinson',
     description: 'Thoracic and molecular pathologist focused on lung cancer sequencing workflows.',
     ptoStatus: false,
@@ -261,7 +239,6 @@ const doctors = [
     skillCodes: ['thoracic-pathology', 'molecular-pathology', 'lung-tumor-typing', 'ngs-interpretation'],
   },
   {
-    id: 'doc_walker',
     name: 'Dr. Isabel Walker',
     description: 'Neuropathologist covering brain tumors, autopsy neuropathology, and frozen sections.',
     ptoStatus: false,
@@ -270,7 +247,6 @@ const doctors = [
     skillCodes: ['neuropathology', 'brain-tumor-classification', 'autopsy-review', 'frozen-section'],
   },
   {
-    id: 'doc_young',
     name: 'Dr. Benjamin Young',
     description: 'Genitourinary pathologist with prostate biopsy and resection review focus.',
     ptoStatus: false,
@@ -279,7 +255,6 @@ const doctors = [
     skillCodes: ['genitourinary-pathology', 'biopsy-review', 'needle-core-biopsy', 'prostate-grading'],
   },
   {
-    id: 'doc_allen',
     name: 'Dr. Fatima Allen',
     description: 'Pediatric and infectious disease pathologist handling unusual biopsy consults.',
     ptoStatus: false,
@@ -288,7 +263,6 @@ const doctors = [
     skillCodes: ['pediatric-pathology', 'biopsy-review', 'pediatric-solid-tumors', 'infectious-disease-pathology'],
   },
   {
-    id: 'doc_king',
     name: 'Dr. Thomas King',
     description: 'General surgical pathologist with broad resection, biopsy, and IHC experience.',
     ptoStatus: false,
@@ -297,7 +271,6 @@ const doctors = [
     skillCodes: ['general-surgical-pathology', 'biopsy-review', 'resection-review', 'immunohistochemistry'],
   },
   {
-    id: 'doc_wright',
     name: 'Dr. Zoe Wright',
     description: 'Renal pathologist specializing in transplant pathology and glomerular disease.',
     ptoStatus: true,
@@ -306,7 +279,6 @@ const doctors = [
     skillCodes: ['renal-pathology', 'renal-biopsy', 'transplant-pathology', 'glomerulonephritis'],
   },
   {
-    id: 'doc_scott',
     name: 'Dr. Adrian Scott',
     description: 'Dermatopathologist and molecular pathology consultant for difficult skin tumors.',
     ptoStatus: false,
@@ -315,7 +287,6 @@ const doctors = [
     skillCodes: ['dermatopathology', 'molecular-pathology', 'skin-biopsy', 'melanocytic-lesions', 'ngs-interpretation'],
   },
   {
-    id: 'doc_baker',
     name: 'Dr. Miles Baker',
     description: 'Hematopathology and molecular consultant for leukemia sequencing correlation.',
     ptoStatus: false,
@@ -324,7 +295,6 @@ const doctors = [
     skillCodes: ['hematopathology', 'molecular-pathology', 'leukemia-workup', 'ngs-interpretation', 'flow-cytometry-correlation'],
   },
   {
-    id: 'doc_adams',
     name: 'Dr. Naomi Adams',
     description: 'Breast pathologist covering urgent core biopsies and frozen section consultation.',
     ptoStatus: false,
@@ -335,13 +305,8 @@ const doctors = [
 ] as const;
 
 async function main(): Promise<void> {
-  await prisma.doctor.deleteMany({
-    where: {
-      id: {
-        notIn: doctors.map((doctor) => doctor.id),
-      },
-    },
-  });
+  await prisma.doctorSkill.deleteMany();
+  await prisma.doctor.deleteMany();
 
   for (const skill of skills) {
     await prisma.skill.upsert({
@@ -352,17 +317,8 @@ async function main(): Promise<void> {
   }
 
   for (const doctor of doctors) {
-    await prisma.doctor.upsert({
-      where: { id: doctor.id },
-      update: {
-        name: doctor.name,
-        description: doctor.description,
-        ptoStatus: doctor.ptoStatus,
-        currentLoad: doctor.currentLoad,
-        active: doctor.active,
-      },
-      create: {
-        id: doctor.id,
+    const createdDoctor = await prisma.doctor.create({
+      data: {
         name: doctor.name,
         description: doctor.description,
         ptoStatus: doctor.ptoStatus,
@@ -371,14 +327,12 @@ async function main(): Promise<void> {
       },
     });
 
-    await prisma.doctorSkill.deleteMany({ where: { doctorId: doctor.id } });
-
     for (const skillCode of doctor.skillCodes) {
       const skill = await prisma.skill.findUniqueOrThrow({ where: { skillCode } });
 
       await prisma.doctorSkill.create({
         data: {
-          doctorId: doctor.id,
+          doctorId: createdDoctor.id,
           skillId: skill.id,
         },
       });

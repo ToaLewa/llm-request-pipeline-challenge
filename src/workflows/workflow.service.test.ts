@@ -16,10 +16,10 @@ const routingDecision: RoutingDecision = {
 
 describe('createInitialWorkflow', () => {
   it('creates a request, workflow, linked request, and first routing task in a transaction', async () => {
-    const workflowRequestCreate = vi.fn().mockResolvedValue({ id: 'request_1' });
-    const workflowCreate = vi.fn().mockResolvedValue({ id: 'workflow_1' });
-    const workflowRequestUpdate = vi.fn().mockResolvedValue({ id: 'request_1' });
-    const workflowTaskCreate = vi.fn().mockResolvedValue({ id: 'task_1' });
+    const workflowRequestCreate = vi.fn().mockResolvedValue({ id: 1 });
+    const workflowCreate = vi.fn().mockResolvedValue({ id: 2 });
+    const workflowRequestUpdate = vi.fn().mockResolvedValue({ id: 1 });
+    const workflowTaskCreate = vi.fn().mockResolvedValue({ id: 3 });
     const tx = {
       workflowRequest: {
         create: workflowRequestCreate,
@@ -47,13 +47,13 @@ describe('createInitialWorkflow', () => {
     });
     expect(workflowCreate).toHaveBeenCalledWith({ data: {} });
     expect(workflowRequestUpdate).toHaveBeenCalledWith({
-      where: { id: 'request_1' },
-      data: { workflowId: 'workflow_1' },
+      where: { id: 1 },
+      data: { workflowId: 2 },
     });
     expect(workflowTaskCreate).toHaveBeenCalledWith({
       data: {
-        workflowId: 'workflow_1',
-        requestId: 'request_1',
+        workflowId: 2,
+        requestId: 1,
         taskType: 'routing_decision',
         sequence: 1,
         status: 'completed',
@@ -63,9 +63,9 @@ describe('createInitialWorkflow', () => {
       },
     });
     expect(result).toEqual({
-      workflowId: 'workflow_1',
-      requestId: 'request_1',
-      taskId: 'task_1',
+      workflowId: 2,
+      requestId: 1,
+      taskId: 3,
     });
   });
 

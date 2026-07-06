@@ -9,7 +9,7 @@ if (!app) {
 const appRoot = app;
 
 type Doctor = {
-  id: string;
+  id: number;
   name: string;
   description: string;
   ptoStatus: boolean;

@@ -8,7 +8,7 @@ type DoctorPoolSkill = {
 };
 
 type DoctorPoolRecord = {
-  id: string;
+  id: number;
   name: string;
   description: string;
   ptoStatus: boolean;
@@ -20,7 +20,7 @@ type DoctorPoolRecord = {
 };
 
 export type DoctorPoolDoctor = {
-  id: string;
+  id: number;
   name: string;
   specialties: string[];
   skills: string[];

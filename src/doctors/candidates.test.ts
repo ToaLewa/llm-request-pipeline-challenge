@@ -40,7 +40,7 @@ describe('findCandidateDoctors', () => {
   it('queries active available doctors through normalized doctor-skill rows', async () => {
     const findMany = vi.fn<CandidateDoctorQueryClient['doctor']['findMany']>().mockResolvedValue([
       {
-        id: 'doc_chen',
+        id: 1,
         name: 'Dr. Emily Chen',
         description: 'Renal pathologist focused on autoimmune kidney disease.',
         ptoStatus: false,
@@ -83,7 +83,7 @@ describe('findCandidateDoctors', () => {
     });
     expect(candidates).toEqual([
       {
-        id: 'doc_chen',
+        id: 1,
         name: 'Dr. Emily Chen',
         specialties: ['Renal Pathology'],
         skills: ['Lupus Nephritis'],
@@ -98,7 +98,7 @@ describe('findCandidateDoctors', () => {
   it('sorts by skill overlap before using current load as a tie-breaker', async () => {
     const findMany = vi.fn<CandidateDoctorQueryClient['doctor']['findMany']>().mockResolvedValue([
       {
-        id: 'doc_patel',
+        id: 2,
         name: 'Dr. Ravi Patel',
         description: 'General surgical pathology.',
         ptoStatus: false,
@@ -107,7 +107,7 @@ describe('findCandidateDoctors', () => {
         skills: [{ skill: { name: 'Renal Biopsy', skillCode: 'renal-biopsy', category: 'case_type' } }],
       },
       {
-        id: 'doc_chen',
+        id: 1,
         name: 'Dr. Emily Chen',
         description: 'Renal pathology.',
         ptoStatus: false,
@@ -125,7 +125,7 @@ describe('findCandidateDoctors', () => {
       client: { doctor: { findMany } },
     });
 
-    expect(candidates.map((candidate) => candidate.id)).toEqual(['doc_chen', 'doc_patel']);
+    expect(candidates.map((candidate) => candidate.id)).toEqual([1, 2]);
   });
 
   it('does not query doctors when routing produced no searchable skills', async () => {
