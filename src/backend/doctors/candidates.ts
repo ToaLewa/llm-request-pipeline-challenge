@@ -89,6 +89,15 @@ export async function findCandidateDoctors(
 ): Promise<CandidateDoctorPayload[]> {
   const requiredSkillCodes = skillCodesFromRoutingDecision(routing);
 
+  return findCandidateDoctorsBySkillCodes(requiredSkillCodes, options);
+}
+
+export async function findCandidateDoctorsBySkillCodes(
+  skillCodes: string[],
+  options: FindCandidateDoctorsOptions = {},
+): Promise<CandidateDoctorPayload[]> {
+  const requiredSkillCodes = [...new Set(skillCodes.map((skillCode) => skillCode.trim()).filter(Boolean))];
+
   if (requiredSkillCodes.length === 0) {
     return [];
   }

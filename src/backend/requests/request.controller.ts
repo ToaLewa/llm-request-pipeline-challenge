@@ -3,6 +3,7 @@ import {
   createOpenAIRoutingDecisionClient,
   createRoutingDecision,
 } from '../inference/routing';
+import { processDoctorAssignmentWorkflow } from '../workflows/doctor-assignment.service';
 import { createInitialWorkflow } from '../workflows/workflow.service';
 
 type RequestPayload = {
@@ -22,6 +23,10 @@ export async function createRequestController(request: IncomingMessage, response
     const client = createOpenAIRoutingDecisionClient();
     const routingDecision = await createRoutingDecision(rawRequest, client);
     const workflow = await createInitialWorkflow(rawRequest, routingDecision, { source: 'web' });
+
+    if (routingDecision.route === 'doctor_assignment') {
+      await processDoctorAssignmentWorkflow(workflow.workflowId);
+    }
 
     sendJson(response, 201, { ...workflow, routingDecision });
   } catch (error) {

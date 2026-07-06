@@ -6,6 +6,7 @@ type WorkflowTaskRecord = {
   taskType: string;
   sequence: number;
   status: string;
+  input?: unknown;
   output: unknown;
   reason: string | null;
   createdAt: Date;
@@ -138,7 +139,8 @@ export async function getWorkflow(workflowId: number, options: ListWorkflowsOpti
 
 function toWorkflowSummary(workflow: WorkflowListRecord): WorkflowSummary {
   const latestTask = [...workflow.tasks].sort((left, right) => right.sequence - left.sequence || right.createdAt.getTime() - left.createdAt.getTime())[0];
-  const routingOutput = toRoutingOutput(latestTask?.output);
+  const routingOutput = latestTask ? toTaskRoutingOutput(latestTask) : emptyRoutingOutput();
+  const reason = latestTask ? reasonForTask(latestTask) : routingOutput.reason;
 
   return {
     id: workflow.id,
@@ -152,12 +154,13 @@ function toWorkflowSummary(workflow: WorkflowListRecord): WorkflowSummary {
     route: routingOutput.route,
     priority: routingOutput.priority,
     caseSummary: routingOutput.caseSummary,
-    reason: latestTask?.reason ?? routingOutput.reason,
+    reason,
   };
 }
 
 function toWorkflowTaskSummary(task: WorkflowTaskRecord): WorkflowTaskSummary {
-  const routingOutput = toRoutingOutput(task.output);
+  const routingOutput = toTaskRoutingOutput(task);
+  const reason = reasonForTask(task);
 
   return {
     id: task.id,
@@ -170,21 +173,64 @@ function toWorkflowTaskSummary(task: WorkflowTaskRecord): WorkflowTaskSummary {
     route: routingOutput.route,
     priority: routingOutput.priority,
     caseSummary: routingOutput.caseSummary,
-    reason: task.reason ?? routingOutput.reason,
+    reason,
   };
+}
+
+function toTaskRoutingOutput(task: WorkflowTaskRecord): Pick<WorkflowSummary, 'route' | 'priority' | 'caseSummary' | 'reason'> {
+  const outputRouting = toRoutingOutput(task.output);
+
+  if (outputRouting.route || outputRouting.priority || outputRouting.caseSummary || outputRouting.reason) {
+    return outputRouting;
+  }
+
+  return toRoutingOutput(task.input);
 }
 
 function toRoutingOutput(output: unknown): Pick<WorkflowSummary, 'route' | 'priority' | 'caseSummary' | 'reason'> {
   if (!output || typeof output !== 'object') {
-    return { route: null, priority: null, caseSummary: null, reason: null };
+    return emptyRoutingOutput();
   }
 
   const record = output as Record<string, unknown>;
+  const routingDecision = record.routingDecision && typeof record.routingDecision === 'object'
+    ? record.routingDecision as Record<string, unknown>
+    : null;
 
   return {
-    route: typeof record.route === 'string' ? record.route : null,
-    priority: typeof record.priority === 'string' ? record.priority : null,
-    caseSummary: typeof record.caseSummary === 'string' ? record.caseSummary : null,
+    route: typeof record.route === 'string' ? record.route : stringOrNull(routingDecision?.route),
+    priority: typeof record.priority === 'string' ? record.priority : stringOrNull(routingDecision?.priority),
+    caseSummary: typeof record.caseSummary === 'string' ? record.caseSummary : stringOrNull(routingDecision?.caseSummary),
     reason: typeof record.reason === 'string' ? record.reason : null,
   };
+}
+
+function emptyRoutingOutput(): Pick<WorkflowSummary, 'route' | 'priority' | 'caseSummary' | 'reason'> {
+  return { route: null, priority: null, caseSummary: null, reason: null };
+}
+
+function reasonForTask(task: WorkflowTaskRecord): string | null {
+  if (task.reason) {
+    return task.reason;
+  }
+
+  if (!task.output || typeof task.output !== 'object') {
+    return null;
+  }
+
+  const output = task.output as Record<string, unknown>;
+
+  if (task.taskType === 'skills_ranking') {
+    return stringOrNull(output.reason);
+  }
+
+  if (task.taskType === 'doctor_ranking' || task.taskType === 'doctor_assignment') {
+    return stringOrNull(output.assignmentReason) ?? stringOrNull(output.unassignableReason);
+  }
+
+  return stringOrNull(output.reason);
+}
+
+function stringOrNull(value: unknown): string | null {
+  return typeof value === 'string' ? value : null;
 }

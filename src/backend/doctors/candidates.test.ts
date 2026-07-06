@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import type { RoutingDecision } from '../inference/routing';
 import {
   findCandidateDoctors,
+  findCandidateDoctorsBySkillCodes,
   normalizeSkillCode,
   skillCodesFromRoutingDecision,
   type CandidateDoctorQueryClient,
@@ -142,6 +143,42 @@ describe('findCandidateDoctors', () => {
     );
 
     expect(candidates).toEqual([]);
+    expect(findMany).not.toHaveBeenCalled();
+  });
+});
+
+describe('findCandidateDoctorsBySkillCodes', () => {
+  it('searches doctors by explicit ranked skill codes', async () => {
+    const findMany = vi.fn<CandidateDoctorQueryClient['doctor']['findMany']>().mockResolvedValue([
+      {
+        id: 1,
+        name: 'Dr. Emily Chen',
+        description: 'Renal pathology.',
+        ptoStatus: false,
+        currentLoad: 4,
+        active: true,
+        skills: [{ skill: { name: 'Renal Pathology', skillCode: 'renal-pathology', category: 'specialty' } }],
+      },
+    ]);
+
+    const candidates = await findCandidateDoctorsBySkillCodes(['renal-pathology', 'renal-pathology'], {
+      client: { doctor: { findMany } },
+    });
+
+    expect(findMany).toHaveBeenCalledWith(expect.objectContaining({
+      where: expect.objectContaining({
+        active: true,
+        ptoStatus: false,
+        skills: { some: { skill: { skillCode: { in: ['renal-pathology'] } } } },
+      }),
+    }));
+    expect(candidates.map((candidate) => candidate.id)).toEqual([1]);
+  });
+
+  it('returns an empty list when no ranked skill codes are provided', async () => {
+    const findMany = vi.fn<CandidateDoctorQueryClient['doctor']['findMany']>();
+
+    await expect(findCandidateDoctorsBySkillCodes([' ', ''], { client: { doctor: { findMany } } })).resolves.toEqual([]);
     expect(findMany).not.toHaveBeenCalled();
   });
 });
