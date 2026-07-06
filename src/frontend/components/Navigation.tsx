@@ -17,7 +17,7 @@ export function Navigation({ route, onNavigate }: NavigationProps) {
     <nav className="site-nav" aria-label="Primary navigation">
       <a href="/" className="brand" onClick={(event) => handleClick(event, '/')}>
         <span className="logo-mark" aria-hidden="true"></span>
-        <span>Request Pipeline</span>
+        <span>Dragon Medical</span>
       </a>
       <div className="nav-links">
         <a href="/" className={route === '/' ? 'is-active' : ''} onClick={(event) => handleClick(event, '/')}>Home</a>
