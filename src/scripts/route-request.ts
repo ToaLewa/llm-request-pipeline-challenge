@@ -2,6 +2,7 @@ import {
   createOpenAIRoutingDecisionClient,
   createRoutingDecision,
 } from '../inference/routing.ts';
+import { createInitialWorkflow } from '../workflows/workflow.service.ts';
 
 function readStdin(): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -35,8 +36,9 @@ async function main(): Promise<void> {
 
   const client = createOpenAIRoutingDecisionClient();
   const decision = await createRoutingDecision(rawRequest, client);
+  const workflow = await createInitialWorkflow(rawRequest, decision);
 
-  console.log(JSON.stringify(decision, null, 2));
+  console.log(JSON.stringify({ ...workflow, routingDecision: decision }, null, 2));
 }
 
 main().catch((error: unknown) => {

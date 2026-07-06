@@ -44,6 +44,56 @@ model DoctorSkill {
   @@index([skillId])
 }
 
+model Workflow {
+  id        String            @id @default(cuid())
+  status    String            @default("active")
+
+  requests  WorkflowRequest[]
+  tasks     WorkflowTask[]
+
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@index([status])
+}
+
+model WorkflowRequest {
+  id         String         @id @default(cuid())
+  workflowId String?
+  rawRequest String
+  source     String         @default("user")
+
+  workflow   Workflow?      @relation(fields: [workflowId], references: [id], onDelete: SetNull)
+  tasks      WorkflowTask[]
+
+  createdAt  DateTime       @default(now())
+
+  @@index([workflowId])
+}
+
+model WorkflowTask {
+  id         String           @id @default(cuid())
+  workflowId String
+  requestId  String?
+  taskType   String
+  sequence   Int
+  status     String           @default("completed")
+  input      Json?
+  output     Json?
+  reason     String?
+
+  workflow   Workflow         @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  request    WorkflowRequest? @relation(fields: [requestId], references: [id], onDelete: SetNull)
+
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@unique([workflowId, sequence])
+  @@index([workflowId])
+  @@index([requestId])
+  @@index([taskType])
+}
+
 enum SkillCategory {
   specialty
   clinical_skill
