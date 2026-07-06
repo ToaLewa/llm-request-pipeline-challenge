@@ -16,6 +16,11 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
           Classify incoming operational requests, identify doctor-assignment cases, and prepare structured context for candidate matching.
         </p>
         <div className="hero-actions">
+          <a href="/requests" className="button-link" onClick={(event) => {
+            event.preventDefault();
+            window.history.pushState({}, '', '/requests');
+            onNavigate('/requests');
+          }}>Create Request</a>
           <a href="/doctors" className="button-link" onClick={(event) => {
             event.preventDefault();
             window.history.pushState({}, '', '/doctors');

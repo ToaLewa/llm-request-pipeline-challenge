@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { DoctorsPage } from './components/DoctorsPage';
 import { LandingPage } from './components/LandingPage';
+import { RequestsPage } from './components/RequestsPage';
 import './styles.css';
 import type { AppRoute, Doctor, DoctorPoolState } from './types';
 
@@ -12,6 +13,10 @@ if (!app) {
 }
 
 function getRoute(): AppRoute {
+  if (window.location.pathname === '/requests') {
+    return '/requests';
+  }
+
   return window.location.pathname === '/doctors' ? '/doctors' : '/';
 }
 
@@ -60,6 +65,10 @@ function App() {
       ignore = true;
     };
   }, []);
+
+  if (route === '/requests') {
+    return <RequestsPage onNavigate={setRoute} />;
+  }
 
   return route === '/doctors' ? (
     <DoctorsPage doctorPoolState={doctorPoolState} onNavigate={setRoute} />
