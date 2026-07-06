@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite';
-import { getDoctorPoolController } from './src/doctors/pool.controller';
+import { getDoctorPoolController } from './src/backend/doctors/pool.controller';
 
 export default defineConfig({
   plugins: [

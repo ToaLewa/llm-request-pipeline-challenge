@@ -1,8 +1,8 @@
 import {
   createOpenAIRoutingDecisionClient,
   createRoutingDecision,
-} from '../inference/routing.ts';
-import { createInitialWorkflow } from '../workflows/workflow.service.ts';
+} from '../backend/inference/routing.ts';
+import { createInitialWorkflow } from '../backend/workflows/workflow.service.ts';
 
 function readStdin(): Promise<string> {
   return new Promise((resolve, reject) => {
