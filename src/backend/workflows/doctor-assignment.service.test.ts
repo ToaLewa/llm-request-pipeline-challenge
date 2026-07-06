@@ -112,7 +112,7 @@ describe('processDoctorAssignmentWorkflow', () => {
     expect(workflowUpdate).toHaveBeenCalledWith({ where: { id: 10 }, data: { status: 'needs_review' } });
   });
 
-  it('creates unassignable tasks when no doctors match ranked skills', async () => {
+  it('creates a human review task when doctor assignment is unassignable', async () => {
     const { client, createdTasks, workflowUpdate } = createWorkflowClient(doctorRoutingDecision);
     const skillsRankingClient: SkillsRankingClient = {
       rankSkills: vi.fn().mockResolvedValue({
@@ -129,7 +129,13 @@ describe('processDoctorAssignmentWorkflow', () => {
       findCandidateDoctors: async () => [],
     })).resolves.toEqual({ status: 'unassignable', workflowId: 10 });
 
-    expect(createdTasks.map((task) => task.status)).toEqual(['completed', 'unassignable', 'unassignable']);
+    expect(createdTasks.map((task) => task.taskType)).toEqual([
+      'skills_ranking',
+      'doctor_ranking',
+      'doctor_assignment',
+      'unknown_human_review',
+    ]);
+    expect(createdTasks.map((task) => task.status)).toEqual(['completed', 'unassignable', 'unassignable', 'required']);
     expect(workflowUpdate).toHaveBeenCalledWith({ where: { id: 10 }, data: { status: 'unassignable' } });
   });
 

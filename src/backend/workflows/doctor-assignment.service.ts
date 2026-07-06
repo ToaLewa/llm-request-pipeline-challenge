@@ -202,7 +202,7 @@ export async function processDoctorAssignmentWorkflow(
   const workflowStatus = finalAssignment.status === 'completed' ? 'assigned' : finalAssignment.status;
 
   await client.$transaction(async (tx) => {
-    await tx.workflowTask.create({
+    const doctorAssignmentTask = await tx.workflowTask.create({
       data: {
         workflowId,
         requestId: request.id,
@@ -217,6 +217,29 @@ export async function processDoctorAssignmentWorkflow(
         reason: finalAssignment.reason,
       },
     });
+
+    if (finalAssignment.status === 'unassignable') {
+      await tx.workflowTask.create({
+        data: {
+          workflowId,
+          requestId: request.id,
+          taskType: 'unknown_human_review',
+          sequence: 5,
+          status: 'required',
+          input: {
+            failedTaskId: doctorAssignmentTask.id,
+            failedTaskType: doctorAssignmentTask.taskType,
+            doctorAssignmentStatus: finalAssignment.status,
+          },
+          output: {
+            route: 'unknown_human_review',
+            reason: finalAssignment.reason ?? 'Doctor assignment failed and requires human review.',
+          },
+          reason: finalAssignment.reason ?? 'Doctor assignment failed and requires human review.',
+        },
+      });
+    }
+
     await tx.workflow.update({ where: { id: workflowId }, data: { status: workflowStatus } });
   });
 
@@ -373,7 +396,7 @@ async function persistUnassignableWorkflow(args: {
       },
     });
 
-    await tx.workflowTask.create({
+    const doctorAssignmentTask = await tx.workflowTask.create({
       data: {
         workflowId: args.workflowId,
         requestId: args.requestId,
@@ -390,6 +413,26 @@ async function persistUnassignableWorkflow(args: {
           assignmentReason: null,
           rankingConfidence: 1,
           unassignableReason: args.reason,
+        },
+        reason: args.reason,
+      },
+    });
+
+    await tx.workflowTask.create({
+      data: {
+        workflowId: args.workflowId,
+        requestId: args.requestId,
+        taskType: 'unknown_human_review',
+        sequence: 5,
+        status: 'required',
+        input: {
+          failedTaskId: doctorAssignmentTask.id,
+          failedTaskType: doctorAssignmentTask.taskType,
+          doctorAssignmentStatus: doctorAssignmentTask.status,
+        },
+        output: {
+          route: 'unknown_human_review',
+          reason: args.reason,
         },
         reason: args.reason,
       },
