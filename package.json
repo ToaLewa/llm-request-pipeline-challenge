@@ -7,18 +7,27 @@
     "dev": "vite --host 0.0.0.0",
     "build": "tsc && vite build",
     "preview": "vite preview --host 0.0.0.0",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "tsx prisma/seed.ts",
     "route": "tsx src/scripts/route-request.ts",
     "test": "vitest run"
   },
   "devDependencies": {
     "@types/node": "^26.1.0",
+    "@types/pg": "^8.20.0",
+    "dotenv": "^17.4.2",
+    "prisma": "^7.8.0",
     "tsx": "^4.23.0",
     "typescript": "^5.8.3",
     "vite": "^7.0.0",
     "vitest": "^4.1.10"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
     "openai": "^6.45.0",
+    "pg": "^8.22.0",
     "zod": "^4.4.3"
   }
 }
