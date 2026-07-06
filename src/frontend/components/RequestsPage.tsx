@@ -55,8 +55,7 @@ export function RequestsPage({ onNavigate }: RequestsPageProps) {
         <section className="request-panel" aria-labelledby="request-title">
           <div className="request-heading">
             <p className="eyebrow">New Request</p>
-            <h1 id="request-title">What should the pipeline route?</h1>
-            <p className="intro">Describe the incoming request in plain language. The backend will classify it, create the first workflow task, and return the routing decision.</p>
+            <p className="intro">Describe your request in plain language, and we will route this to the appropriate team.</p>
           </div>
 
           {isSubmitting ? (
