@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { CandidateDoctorPayload } from '../doctors/candidates';
+import type { AssignmentSummaryClient } from '../inference/assignment-summary';
 import type { DoctorRankingClient } from '../inference/doctor-ranking';
 import type { RoutingDecision } from '../inference/routing';
 import type { SkillsRankingClient } from '../inference/skills-ranking';
@@ -55,7 +56,7 @@ describe('processDoctorAssignmentWorkflow', () => {
   });
 
   it('appends ranking and assignment tasks in order when validation succeeds', async () => {
-    const { client, createdTasks, workflowUpdate } = createWorkflowClient(doctorRoutingDecision);
+    const { client, createdAssignments, createdTasks, workflowUpdate } = createWorkflowClient(doctorRoutingDecision);
     const skillsRankingClient: SkillsRankingClient = {
       rankSkills: vi.fn().mockResolvedValue({
         rankedSkills: [
@@ -76,11 +77,15 @@ describe('processDoctorAssignmentWorkflow', () => {
         unassignableReason: null,
       }),
     };
+    const assignmentSummaryClient: AssignmentSummaryClient = {
+      summarizeAssignment: vi.fn().mockResolvedValue({ summary: 'Review the renal biopsy for lupus nephritis.' }),
+    };
 
     await expect(processDoctorAssignmentWorkflow(10, {
       client,
       skillsRankingClient,
       doctorRankingClient,
+      assignmentSummaryClient,
       loadAvailableSkills: async () => availableSkills,
       findCandidateDoctors: async () => candidateDoctors,
     })).resolves.toEqual({ status: 'assigned', workflowId: 10 });
@@ -88,6 +93,16 @@ describe('processDoctorAssignmentWorkflow', () => {
     expect(createdTasks.map((task) => task.taskType)).toEqual(['skills_ranking', 'doctor_ranking', 'doctor_assignment']);
     expect(createdTasks.map((task) => task.sequence)).toEqual([2, 3, 4]);
     expect(createdTasks[createdTasks.length - 1]?.status).toBe('completed');
+    expect(createdAssignments).toEqual([
+      {
+        doctorId: 7,
+        workflowTaskId: 4,
+        summary: 'Review the renal biopsy for lupus nephritis.',
+      },
+    ]);
+    expect(assignmentSummaryClient.summarizeAssignment).toHaveBeenCalledWith(expect.objectContaining({
+      assignedDoctor: { id: 7, name: 'Dr. Emily Chen' },
+    }));
     expect(workflowUpdate).toHaveBeenCalledWith({ where: { id: 10 }, data: { status: 'assigned' } });
   });
 
@@ -174,16 +189,23 @@ describe('processDoctorAssignmentWorkflow', () => {
 
 function createWorkflowClient(routingDecision: RoutingDecision): {
   client: DoctorAssignmentWorkflowClient;
-  createdTasks: Array<{ taskType: string; sequence: number; status: string }>;
+  createdAssignments: Array<{ doctorId: number; workflowTaskId: number; summary: string }>;
+  createdTasks: Array<{ id: number; taskType: string; sequence: number; status: string }>;
   workflowTaskCreate: ReturnType<typeof vi.fn>;
   workflowUpdate: ReturnType<typeof vi.fn>;
 } {
-  const createdTasks: Array<{ taskType: string; sequence: number; status: string }> = [];
+  const createdAssignments: Array<{ doctorId: number; workflowTaskId: number; summary: string }> = [];
+  const createdTasks: Array<{ id: number; taskType: string; sequence: number; status: string }> = [];
   const workflowTaskCreate = vi.fn(async (args: { data: { taskType: string; sequence: number; status: string } }) => {
     const task = { id: createdTasks.length + 2, requestId: 1, input: null, output: null, reason: null, ...args.data };
     createdTasks.push(task);
 
     return task;
+  });
+  const assignmentCreate = vi.fn(async (args: { data: { doctorId: number; workflowTaskId: number; summary: string } }) => {
+    createdAssignments.push(args.data);
+
+    return { id: createdAssignments.length };
   });
   const workflowUpdate = vi.fn(async (args: { where: { id: number }; data: { status: string } }) => ({
     id: args.where.id,
@@ -210,9 +232,10 @@ function createWorkflowClient(routingDecision: RoutingDecision): {
     },
     $transaction: vi.fn((handler) => handler({
       workflowTask: { create: workflowTaskCreate },
+      assignment: { create: assignmentCreate },
       workflow: { update: workflowUpdate },
     })),
   };
 
-  return { client, createdTasks, workflowTaskCreate, workflowUpdate };
+  return { client, createdAssignments, createdTasks, workflowTaskCreate, workflowUpdate };
 }

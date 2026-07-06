@@ -16,6 +16,7 @@ model Doctor {
   active      Boolean       @default(true)
 
   skills      DoctorSkill[]
+  assignments Assignment[]
 
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -84,6 +85,7 @@ model WorkflowTask {
 
   workflow   Workflow         @relation(fields: [workflowId], references: [id], onDelete: Cascade)
   request    WorkflowRequest? @relation(fields: [requestId], references: [id], onDelete: SetNull)
+  assignment Assignment?
 
   createdAt  DateTime         @default(now())
   updatedAt  DateTime         @updatedAt
@@ -92,6 +94,21 @@ model WorkflowTask {
   @@index([workflowId])
   @@index([requestId])
   @@index([taskType])
+}
+
+model Assignment {
+  id             Int          @id @default(autoincrement())
+  doctorId       Int
+  workflowTaskId Int          @unique
+  summary        String
+
+  doctor         Doctor       @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+  workflowTask   WorkflowTask @relation(fields: [workflowTaskId], references: [id], onDelete: Cascade)
+
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([doctorId])
 }
 
 enum SkillCategory {

@@ -1,5 +1,10 @@
 import { findCandidateDoctorsBySkillCodes, type CandidateDoctorPayload } from '../doctors/candidates';
 import {
+  createAssignmentSummary,
+  createOpenAIAssignmentSummaryClient,
+  type AssignmentSummaryClient,
+} from '../inference/assignment-summary';
+import {
   createDoctorRanking,
   createOpenAIDoctorRankingClient,
   validateDoctorRanking,
@@ -51,9 +56,18 @@ type WorkflowTaskCreateData = {
   reason: string | null;
 };
 
+type AssignmentCreateData = {
+  doctorId: number;
+  workflowTaskId: number;
+  summary: string;
+};
+
 type DoctorAssignmentTransactionClient = {
   workflowTask: {
     create(args: { data: WorkflowTaskCreateData }): Promise<WorkflowTaskRecord>;
+  };
+  assignment: {
+    create(args: { data: AssignmentCreateData }): Promise<{ id: number }>;
   };
   workflow: {
     update(args: { where: { id: number }; data: { status: string } }): Promise<{ id: number; status: string }>;
@@ -77,6 +91,7 @@ export type ProcessDoctorAssignmentWorkflowOptions = {
   client?: DoctorAssignmentWorkflowClient;
   skillsRankingClient?: SkillsRankingClient;
   doctorRankingClient?: DoctorRankingClient;
+  assignmentSummaryClient?: AssignmentSummaryClient;
   loadAvailableSkills?: () => Promise<AvailableSkill[]>;
   findCandidateDoctors?: (skillCodes: string[]) => Promise<CandidateDoctorPayload[]>;
 };
@@ -200,6 +215,39 @@ export async function processDoctorAssignmentWorkflow(
 
   const finalAssignment = toFinalAssignment(doctorRankingResult.ranking, candidateDoctors, doctorRankingResult.status);
   const workflowStatus = finalAssignment.status === 'completed' ? 'assigned' : finalAssignment.status;
+  const assignmentSummary = finalAssignment.status === 'completed' && finalAssignment.output.assignedDoctorId !== null
+    ? await createAssignmentSummary(
+      {
+        rawRequest,
+        workflowContext: buildAssignmentSummaryContext(workflow.tasks, [
+          skillsRankingResult.task,
+          {
+            ...doctorRankingTask,
+            output: doctorRankingResult.ranking,
+            reason: doctorRankingResult.reason,
+          },
+          {
+            id: 0,
+            requestId: request.id,
+            taskType: 'doctor_assignment',
+            sequence: 4,
+            status: finalAssignment.status,
+            input: {
+              doctorRankingTaskId: doctorRankingTask.id,
+              selectedDoctorId: doctorRankingResult.ranking.selectedDoctorId,
+            },
+            output: finalAssignment.output,
+            reason: finalAssignment.reason,
+          },
+        ]),
+        assignedDoctor: {
+          id: finalAssignment.output.assignedDoctorId,
+          name: finalAssignment.output.assignedDoctorName,
+        },
+      },
+      options.assignmentSummaryClient ?? createOpenAIAssignmentSummaryClient(),
+    )
+    : null;
 
   await client.$transaction(async (tx) => {
     const doctorAssignmentTask = await tx.workflowTask.create({
@@ -217,6 +265,16 @@ export async function processDoctorAssignmentWorkflow(
         reason: finalAssignment.reason,
       },
     });
+
+    if (assignmentSummary && finalAssignment.output.assignedDoctorId !== null) {
+      await tx.assignment.create({
+        data: {
+          doctorId: finalAssignment.output.assignedDoctorId,
+          workflowTaskId: doctorAssignmentTask.id,
+          summary: assignmentSummary.summary,
+        },
+      });
+    }
 
     if (finalAssignment.status === 'unassignable') {
       await tx.workflowTask.create({
@@ -246,6 +304,20 @@ export async function processDoctorAssignmentWorkflow(
   return { status: workflowStatus as DoctorAssignmentWorkflowResult['status'], workflowId };
 }
 
+function buildAssignmentSummaryContext(
+  existingTasks: WorkflowTaskRecord[],
+  newTasks: WorkflowTaskRecord[],
+): Array<{ taskType: string; status: string; reason: string | null; output: unknown }> {
+  return [...existingTasks, ...newTasks]
+    .sort((left, right) => left.sequence - right.sequence)
+    .map((task) => ({
+      taskType: task.taskType,
+      status: task.status,
+      reason: task.reason,
+      output: task.output,
+    }));
+}
+
 async function loadWorkflow(workflowId: number, client: DoctorAssignmentWorkflowClient): Promise<WorkflowRecord> {
   const workflow = await client.workflow.findUnique({
     where: { id: workflowId },
@@ -270,7 +342,10 @@ async function rankAndPersistSkills(args: {
   routingDecision: RoutingDecision;
   availableSkills: AvailableSkill[];
   skillsRankingClient: SkillsRankingClient;
-}): Promise<{ status: 'completed'; ranking: SkillsRanking } | { status: 'needs_review'; ranking: SkillsRanking }> {
+}): Promise<
+  | { status: 'completed'; ranking: SkillsRanking; task: WorkflowTaskRecord }
+  | { status: 'needs_review'; ranking: SkillsRanking; task: WorkflowTaskRecord }
+> {
   let ranking: SkillsRanking;
   let status: 'completed' | 'needs_review' = 'completed';
 
@@ -295,7 +370,7 @@ async function rankAndPersistSkills(args: {
     };
   }
 
-  await args.client.$transaction(async (tx) => tx.workflowTask.create({
+  const task = await args.client.$transaction(async (tx) => tx.workflowTask.create({
     data: {
       workflowId: args.workflowId,
       requestId: args.requestId,
@@ -312,7 +387,7 @@ async function rankAndPersistSkills(args: {
     },
   }));
 
-  return { status, ranking };
+  return { status, ranking, task };
 }
 
 async function rankDoctors(args: {
