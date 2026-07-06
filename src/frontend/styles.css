@@ -528,6 +528,28 @@ p {
   background: rgba(236, 253, 245, 0.46);
 }
 
+.workflow-row-link {
+  display: grid;
+  gap: 0.25rem;
+  border-radius: 0.75rem;
+  outline: none;
+}
+
+.workflow-row-link:focus-visible {
+  box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.16);
+}
+
+.workflow-back-link {
+  width: fit-content;
+  color: #0f766e;
+  font-size: 0.92rem;
+  font-weight: 900;
+}
+
+.workflow-back-link:hover {
+  color: #115e59;
+}
+
 .workflow-id,
 .workflow-task-type,
 .workflow-task-status {
@@ -575,6 +597,14 @@ p {
 .workflow-table-message.is-error {
   color: #9a3412;
   background: #fff7ed;
+}
+
+.workflow-task-table {
+  min-width: 70rem;
+}
+
+.workflow-task-table tbody th {
+  width: 15rem;
 }
 
 .doctor-card {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type MouseEvent } from 'react';
 import type { AppRoute, WorkflowListState, WorkflowSummary } from '../types';
 import { Navigation } from './Navigation';
 
@@ -93,7 +93,7 @@ export function WorkflowsPage({ onNavigate }: WorkflowsPageProps) {
                 <td className="workflow-table-message" colSpan={8}>No workflows have been created yet.</td>
               </tr>
             ) : null}
-            {workflowState.workflows.map((workflow) => <WorkflowTableRow key={workflow.id} workflow={workflow} />)}
+            {workflowState.workflows.map((workflow) => <WorkflowTableRow key={workflow.id} workflow={workflow} onNavigate={onNavigate} />)}
           </tbody>
         </table>
       </section>
@@ -101,12 +101,22 @@ export function WorkflowsPage({ onNavigate }: WorkflowsPageProps) {
   );
 }
 
-function WorkflowTableRow({ workflow }: { workflow: WorkflowSummary }) {
+function WorkflowTableRow({ workflow, onNavigate }: { workflow: WorkflowSummary; onNavigate: (route: AppRoute) => void }) {
+  const workflowRoute = `/workflows/${workflow.id}` as const;
+
+  function handleClick(event: MouseEvent<HTMLAnchorElement>): void {
+    event.preventDefault();
+    window.history.pushState({}, '', workflowRoute);
+    onNavigate(workflowRoute);
+  }
+
   return (
     <tr>
       <th scope="row">
-        <span className="workflow-id">#{workflow.id}</span>
-        <span className="workflow-summary">{workflow.caseSummary ?? workflow.reason ?? 'Routing details pending'}</span>
+        <a className="workflow-row-link" href={workflowRoute} onClick={handleClick}>
+          <span className="workflow-id">#{workflow.id}</span>
+          <span className="workflow-summary">{workflow.caseSummary ?? workflow.reason ?? 'Routing details pending'}</span>
+        </a>
       </th>
       <td><span className="status-pill status-available">{formatLabel(workflow.status)}</span></td>
       <td>{formatLabel(workflow.route)}</td>

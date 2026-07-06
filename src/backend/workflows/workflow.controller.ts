@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { listWorkflows } from './workflow-list.service';
+import { getWorkflow, listWorkflows } from './workflow-list.service';
 
 export async function getWorkflowsController(_request: IncomingMessage, response: ServerResponse): Promise<void> {
   try {
@@ -8,6 +8,22 @@ export async function getWorkflowsController(_request: IncomingMessage, response
   } catch (error) {
     console.error('Failed to load workflows.', error);
     sendJson(response, 500, { error: 'Failed to load workflows.' });
+  }
+}
+
+export async function getWorkflowController(_request: IncomingMessage, response: ServerResponse, workflowId: number): Promise<void> {
+  try {
+    const workflow = await getWorkflow(workflowId);
+
+    if (!workflow) {
+      sendJson(response, 404, { error: 'Workflow not found.' });
+      return;
+    }
+
+    sendJson(response, 200, { workflow });
+  } catch (error) {
+    console.error('Failed to load workflow.', error);
+    sendJson(response, 500, { error: 'Failed to load workflow.' });
   }
 }
 

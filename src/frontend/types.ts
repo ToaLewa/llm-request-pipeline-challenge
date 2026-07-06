@@ -54,4 +54,27 @@ export type WorkflowListState =
   | { status: 'loaded'; workflows: WorkflowSummary[]; error?: never }
   | { status: 'error'; workflows: WorkflowSummary[]; error: string };
 
-export type AppRoute = '/' | '/requests' | '/doctors' | '/workflows';
+export type WorkflowTaskSummary = {
+  id: number;
+  requestId: number | null;
+  taskType: string;
+  sequence: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  route: string | null;
+  priority: string | null;
+  caseSummary: string | null;
+  reason: string | null;
+};
+
+export type WorkflowDetail = WorkflowSummary & {
+  tasks: WorkflowTaskSummary[];
+};
+
+export type WorkflowDetailState =
+  | { status: 'loading'; workflow?: never; error?: never }
+  | { status: 'loaded'; workflow: WorkflowDetail; error?: never }
+  | { status: 'error'; workflow?: never; error: string };
+
+export type AppRoute = '/' | '/requests' | '/doctors' | '/workflows' | `/workflows/${number}`;
