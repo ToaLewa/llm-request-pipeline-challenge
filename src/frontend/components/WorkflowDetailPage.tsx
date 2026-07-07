@@ -137,7 +137,7 @@ export function WorkflowDetailPage({ workflowId, onNavigate }: WorkflowDetailPag
                 <td className="workflow-table-message" colSpan={7}>No tasks have been recorded for this workflow.</td>
               </tr>
             ) : null}
-            {workflowState.status === 'loaded' ? workflowState.workflow.tasks.map((task) => <WorkflowTaskRow key={task.id} task={task} />) : null}
+            {workflowState.status === 'loaded' ? workflowState.workflow.tasks.slice().reverse().map((task) => <WorkflowTaskRow key={task.id} task={task} />) : null}
           </tbody>
         </table>
       </section>
