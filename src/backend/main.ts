@@ -1,5 +1,5 @@
 import { createServer } from 'node:http';
-import { getDoctorPoolController } from './doctors/pool.controller';
+import { getClinicalTeamController } from './doctors/clinical-team.controller';
 import { createRequestController } from './requests/request.controller';
 import { createWorkflowActionController, getWorkflowController, getWorkflowsController } from './workflows/workflow.controller';
 
@@ -9,7 +9,7 @@ const host = process.env.HOST ?? '0.0.0.0';
 const server = createServer((request, response) => {
   const url = new URL(request.url ?? '/', `http://${request.headers.host ?? 'localhost'}`);
 
-  if (url.pathname === '/api/doctors') {
+  if (url.pathname === '/api/clinical-team') {
     if (request.method !== 'GET') {
       response.statusCode = 405;
       response.setHeader('Allow', 'GET');
@@ -17,7 +17,7 @@ const server = createServer((request, response) => {
       return;
     }
 
-    void getDoctorPoolController(request, response);
+    void getClinicalTeamController(request, response);
     return;
   }
 

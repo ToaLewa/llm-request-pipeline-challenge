@@ -1,13 +1,13 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { getDoctorPool } from './pool.service';
+import { getClinicalTeam } from './clinical-team.service';
 
-export async function getDoctorPoolController(_request: IncomingMessage, response: ServerResponse): Promise<void> {
+export async function getClinicalTeamController(_request: IncomingMessage, response: ServerResponse): Promise<void> {
   try {
-    const doctors = await getDoctorPool();
+    const doctors = await getClinicalTeam();
     sendJson(response, 200, { doctors });
   } catch (error) {
-    console.error('Failed to load doctor pool.', error);
-    sendJson(response, 500, { error: 'Failed to load doctor pool.' });
+    console.error('Failed to load clinical team.', error);
+    sendJson(response, 500, { error: 'Failed to load clinical team.' });
   }
 }
 

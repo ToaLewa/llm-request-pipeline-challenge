@@ -92,7 +92,7 @@ Similar `useEffect`, cancellation flag, `fetch`, and error-state logic appears i
 - `src/frontend/components/WorkflowsPage.tsx`
 - `src/frontend/components/WorkflowDetailPage.tsx`
 
-Refactor: add endpoint-specific hooks such as `useDoctorPool`, `useWorkflows`, and `useWorkflowDetails`. Prefer endpoint-specific hooks over a generic abstraction while the app is small.
+Refactor: add endpoint-specific hooks such as `useClinicalTeam`, `useWorkflows`, and `useWorkflowDetails`. Prefer endpoint-specific hooks over a generic abstraction while the app is small.
 
 ### 9. Frontend Date Formatting
 

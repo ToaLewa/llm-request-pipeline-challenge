@@ -207,7 +207,7 @@ Implementation detail:
 
 ## Seed Data
 
-Initial seed data should include a small but meaningful doctor pool.
+Initial seed data should include a small but meaningful clinical team.
 
 Example skills:
 

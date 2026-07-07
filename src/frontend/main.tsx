@@ -6,7 +6,7 @@ import { RequestsPage } from './components/RequestsPage';
 import { WorkflowDetailPage } from './components/WorkflowDetailPage';
 import { WorkflowsPage } from './components/WorkflowsPage';
 import './styles.css';
-import type { AppRoute, Doctor, DoctorPoolState } from './types';
+import type { AppRoute, Doctor, ClinicalTeamState } from './types';
 
 const app = document.querySelector<HTMLDivElement>('#app');
 
@@ -29,12 +29,12 @@ function getRoute(): AppRoute {
     return `/workflows/${Number.parseInt(workflowMatch[1], 10)}`;
   }
 
-  return window.location.pathname === '/doctors' ? '/doctors' : '/';
+  return window.location.pathname === '/clinical-team' ? '/clinical-team' : '/';
 }
 
 function App() {
   const [route, setRoute] = useState<AppRoute>(getRoute);
-  const [doctorPoolState, setDoctorPoolState] = useState<DoctorPoolState>({ status: 'loading', doctors: [] });
+  const [clinicalTeamState, setClinicalTeamState] = useState<ClinicalTeamState>({ status: 'loading', doctors: [] });
 
   useEffect(() => {
     function handlePopState(): void {
@@ -48,30 +48,30 @@ function App() {
   useEffect(() => {
     let ignore = false;
 
-    async function loadDoctorPool(): Promise<void> {
-      setDoctorPoolState((current) => ({ status: 'loading', doctors: current.doctors }));
+    async function loadClinicalTeam(): Promise<void> {
+      setClinicalTeamState((current) => ({ status: 'loading', doctors: current.doctors }));
 
       try {
-        const response = await fetch('/api/doctors');
+        const response = await fetch('/api/clinical-team');
 
         if (!response.ok) {
-          throw new Error(`Doctor pool request failed with ${response.status}.`);
+          throw new Error(`Clinical team request failed with ${response.status}.`);
         }
 
         const payload = (await response.json()) as { doctors?: Doctor[] };
 
         if (!ignore) {
-          setDoctorPoolState({ status: 'loaded', doctors: payload.doctors ?? [] });
+          setClinicalTeamState({ status: 'loaded', doctors: payload.doctors ?? [] });
         }
       } catch (error) {
         if (!ignore) {
-          const message = error instanceof Error ? error.message : 'Doctor pool request failed.';
-          setDoctorPoolState((current) => ({ status: 'error', doctors: current.doctors, error: message }));
+          const message = error instanceof Error ? error.message : 'Clinical team request failed.';
+          setClinicalTeamState((current) => ({ status: 'error', doctors: current.doctors, error: message }));
         }
       }
     }
 
-    void loadDoctorPool();
+    void loadClinicalTeam();
 
     return () => {
       ignore = true;
@@ -90,8 +90,8 @@ function App() {
     return <WorkflowDetailPage workflowId={Number.parseInt(route.slice('/workflows/'.length), 10)} onNavigate={setRoute} />;
   }
 
-  return route === '/doctors' ? (
-    <DoctorsPage doctorPoolState={doctorPoolState} onNavigate={setRoute} />
+  return route === '/clinical-team' ? (
+    <DoctorsPage clinicalTeamState={clinicalTeamState} onNavigate={setRoute} />
   ) : (
     <LandingPage onNavigate={setRoute} />
   );

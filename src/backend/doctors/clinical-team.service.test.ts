@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
-import { getDoctorPool, type DoctorPoolQueryClient } from './pool.service';
+import { getClinicalTeam, type ClinicalTeamQueryClient } from './clinical-team.service';
 
-describe('getDoctorPool', () => {
+describe('getClinicalTeam', () => {
   it('loads doctors with normalized skill rows and groups display values by category', async () => {
-    const findMany = vi.fn<DoctorPoolQueryClient['doctor']['findMany']>().mockResolvedValue([
+    const findMany = vi.fn<ClinicalTeamQueryClient['doctor']['findMany']>().mockResolvedValue([
       {
         id: 1,
         name: 'Dr. Emily Chen',
@@ -19,7 +19,7 @@ describe('getDoctorPool', () => {
       },
     ]);
 
-    const doctors = await getDoctorPool({ client: { doctor: { findMany } } });
+    const doctors = await getClinicalTeam({ client: { doctor: { findMany } } });
 
     expect(findMany).toHaveBeenCalledWith({
       include: {

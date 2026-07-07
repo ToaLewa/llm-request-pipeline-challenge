@@ -20,11 +20,11 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
             window.history.pushState({}, '', '/requests');
             onNavigate('/requests');
           }}>Create Request</a>
-          <a href="/doctors" className="button-link" onClick={(event) => {
+          <a href="/clinical-team" className="button-link" onClick={(event) => {
             event.preventDefault();
-            window.history.pushState({}, '', '/doctors');
-            onNavigate('/doctors');
-          }}>View Doctor Pool</a>
+            window.history.pushState({}, '', '/clinical-team');
+            onNavigate('/clinical-team');
+          }}>View Clinical Team</a>
           <span className="action-note">Normalized skills power assignment decisions.</span>
         </div>
       </header>

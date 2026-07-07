@@ -10,7 +10,7 @@ export type Doctor = {
   caseTypes: string[];
 };
 
-export type DoctorPoolState =
+export type ClinicalTeamState =
   | { status: 'loading'; doctors: Doctor[]; error?: never }
   | { status: 'loaded'; doctors: Doctor[]; error?: never }
   | { status: 'error'; doctors: Doctor[]; error: string };
@@ -80,7 +80,7 @@ export type WorkflowDetailState =
   | { status: 'loaded'; workflow: WorkflowDetail; error?: never }
   | { status: 'error'; workflow?: never; error: string };
 
-export type AppRoute = '/' | '/requests' | '/doctors' | '/workflows' | `/workflows/${number}`;
+export type AppRoute = '/' | '/requests' | '/clinical-team' | '/workflows' | `/workflows/${number}`;
 
 export type WorkflowActionResult = {
   workflowId: number;
