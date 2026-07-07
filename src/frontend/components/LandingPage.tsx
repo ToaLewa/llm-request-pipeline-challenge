@@ -37,7 +37,7 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
         <article className="feature-card">
           <span className="feature-number">02</span>
           <h2>Match</h2>
-          <p>Use normalized specialties, clinical skills, and case types to find available doctors.</p>
+          <p>Use normalized specialties, clinical skills, and case types to find available team members.</p>
         </article>
         <article className="feature-card">
           <span className="feature-number">03</span>

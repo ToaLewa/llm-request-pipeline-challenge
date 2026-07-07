@@ -9,7 +9,7 @@ type ClinicalTeamPageProps = {
 };
 
 export function ClinicalTeamPage({ clinicalTeamState, onNavigate }: ClinicalTeamPageProps) {
-  const { doctors } = clinicalTeamState;
+  const { teamMembers } = clinicalTeamState;
 
   return (
     <section className="page-shell clinical-team-page">
@@ -21,15 +21,15 @@ export function ClinicalTeamPage({ clinicalTeamState, onNavigate }: ClinicalTeam
             <p className="intro">Specialists available to the request pipeline, grouped by normalized skills and case types.</p>
           </div>
           <aside className="summary-card" aria-label="Clinical team summary">
-            <span className="summary-number">{doctors.length}</span>
+            <span className="summary-number">{teamMembers.length}</span>
             <span className="summary-label">Clinical team members</span>
-            <span className="summary-detail">{doctors.filter((doctor) => !doctor.ptoStatus && doctor.active).length} available for auto-assignment</span>
+            <span className="summary-detail">{teamMembers.filter((teamMember) => !teamMember.ptoStatus && teamMember.active).length} available for auto-assignment</span>
           </aside>
         </div>
       </header>
 
       <section className="clinical-team-grid" aria-label="Clinical team members">
-        {doctors.length > 0 ? doctors.map((member) => <ClinicalTeamMemberCard member={member} key={member.id} />) : <ClinicalTeamStatus clinicalTeamState={clinicalTeamState} />}
+        {teamMembers.length > 0 ? teamMembers.map((member) => <ClinicalTeamMemberCard member={member} key={member.id} />) : <ClinicalTeamStatus clinicalTeamState={clinicalTeamState} />}
       </section>
     </section>
   );

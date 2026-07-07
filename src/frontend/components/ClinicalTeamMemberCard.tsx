@@ -1,10 +1,10 @@
-import type { Doctor } from '../types';
+import type { TeamMember } from '../types';
 
 type ClinicalTeamMemberCardProps = {
-  member: Doctor;
+  member: TeamMember;
 };
 
-function availabilityLabel(member: Doctor): string {
+function availabilityLabel(member: TeamMember): string {
   if (!member.active) {
     return 'Inactive';
   }

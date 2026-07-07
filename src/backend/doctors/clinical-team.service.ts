@@ -19,7 +19,7 @@ type ClinicalTeamRecord = {
   }>;
 };
 
-export type ClinicalTeamDoctor = {
+export type ClinicalTeamMember = {
   id: number;
   name: string;
   specialties: string[];
@@ -50,9 +50,9 @@ export type GetClinicalTeamOptions = {
   client?: ClinicalTeamQueryClient;
 };
 
-export async function getClinicalTeam(options: GetClinicalTeamOptions = {}): Promise<ClinicalTeamDoctor[]> {
+export async function getClinicalTeam(options: GetClinicalTeamOptions = {}): Promise<ClinicalTeamMember[]> {
   const client: ClinicalTeamQueryClient = options.client ?? getPrisma();
-  const doctors = await client.teamMember.findMany({
+  const teamMembers = await client.teamMember.findMany({
     include: {
       skills: {
         include: {
@@ -63,23 +63,23 @@ export async function getClinicalTeam(options: GetClinicalTeamOptions = {}): Pro
     orderBy: [{ active: 'desc' }, { ptoStatus: 'asc' }, { name: 'asc' }],
   });
 
-  return doctors.map(toClinicalTeamDoctor);
+  return teamMembers.map(toClinicalTeamMember);
 }
 
-function toClinicalTeamDoctor(doctor: ClinicalTeamRecord): ClinicalTeamDoctor {
+function toClinicalTeamMember(teamMember: ClinicalTeamRecord): ClinicalTeamMember {
   return {
-    id: doctor.id,
-    name: doctor.name,
-    specialties: skillNamesForCategory(doctor, 'specialty'),
-    skills: skillNamesForCategory(doctor, 'clinical_skill'),
-    caseTypes: skillNamesForCategory(doctor, 'case_type'),
-    description: doctor.description,
-    ptoStatus: doctor.ptoStatus,
-    currentLoad: doctor.currentLoad,
-    active: doctor.active,
+    id: teamMember.id,
+    name: teamMember.name,
+    specialties: skillNamesForCategory(teamMember, 'specialty'),
+    skills: skillNamesForCategory(teamMember, 'clinical_skill'),
+    caseTypes: skillNamesForCategory(teamMember, 'case_type'),
+    description: teamMember.description,
+    ptoStatus: teamMember.ptoStatus,
+    currentLoad: teamMember.currentLoad,
+    active: teamMember.active,
   };
 }
 
-function skillNamesForCategory(doctor: ClinicalTeamRecord, category: SkillCategory): string[] {
-  return doctor.skills.filter(({ skill }) => skill.category === category).map(({ skill }) => skill.name);
+function skillNamesForCategory(teamMember: ClinicalTeamRecord, category: SkillCategory): string[] {
+  return teamMember.skills.filter(({ skill }) => skill.category === category).map(({ skill }) => skill.name);
 }

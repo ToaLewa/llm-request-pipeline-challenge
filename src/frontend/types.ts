@@ -1,4 +1,4 @@
-export type Doctor = {
+export type TeamMember = {
   id: number;
   name: string;
   description: string;
@@ -11,9 +11,9 @@ export type Doctor = {
 };
 
 export type ClinicalTeamState =
-  | { status: 'loading'; doctors: Doctor[]; error?: never }
-  | { status: 'loaded'; doctors: Doctor[]; error?: never }
-  | { status: 'error'; doctors: Doctor[]; error: string };
+  | { status: 'loading'; teamMembers: TeamMember[]; error?: never }
+  | { status: 'loaded'; teamMembers: TeamMember[]; error?: never }
+  | { status: 'error'; teamMembers: TeamMember[]; error: string };
 
 export type RoutingDecision = {
   route: string;

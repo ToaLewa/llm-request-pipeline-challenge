@@ -3,8 +3,8 @@ import { getClinicalTeam } from './clinical-team.service';
 
 export async function getClinicalTeamController(_request: IncomingMessage, response: ServerResponse): Promise<void> {
   try {
-    const doctors = await getClinicalTeam();
-    sendJson(response, 200, { doctors });
+    const teamMembers = await getClinicalTeam();
+    sendJson(response, 200, { teamMembers });
   } catch (error) {
     console.error('Failed to load clinical team.', error);
     sendJson(response, 500, { error: 'Failed to load clinical team.' });

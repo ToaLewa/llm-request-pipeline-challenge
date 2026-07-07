@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { getClinicalTeam, type ClinicalTeamQueryClient } from './clinical-team.service';
 
 describe('getClinicalTeam', () => {
-  it('loads doctors with normalized skill rows and groups display values by category', async () => {
+  it('loads team members with normalized skill rows and groups display values by category', async () => {
     const findMany = vi.fn<ClinicalTeamQueryClient['teamMember']['findMany']>().mockResolvedValue([
       {
         id: 1,
@@ -19,7 +19,7 @@ describe('getClinicalTeam', () => {
       },
     ]);
 
-    const doctors = await getClinicalTeam({ client: { teamMember: { findMany } } });
+    const teamMembers = await getClinicalTeam({ client: { teamMember: { findMany } } });
 
     expect(findMany).toHaveBeenCalledWith({
       include: {
@@ -31,7 +31,7 @@ describe('getClinicalTeam', () => {
       },
       orderBy: [{ active: 'desc' }, { ptoStatus: 'asc' }, { name: 'asc' }],
     });
-    expect(doctors).toEqual([
+    expect(teamMembers).toEqual([
       {
         id: 1,
         name: 'Dr. Emily Chen',

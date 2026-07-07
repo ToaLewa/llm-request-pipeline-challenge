@@ -6,7 +6,7 @@ import { RequestsPage } from './components/RequestsPage';
 import { WorkflowDetailPage } from './components/WorkflowDetailPage';
 import { WorkflowsPage } from './components/WorkflowsPage';
 import './styles.css';
-import type { AppRoute, Doctor, ClinicalTeamState } from './types';
+import type { AppRoute, TeamMember, ClinicalTeamState } from './types';
 
 const app = document.querySelector<HTMLDivElement>('#app');
 
@@ -34,7 +34,7 @@ function getRoute(): AppRoute {
 
 function App() {
   const [route, setRoute] = useState<AppRoute>(getRoute);
-  const [clinicalTeamState, setClinicalTeamState] = useState<ClinicalTeamState>({ status: 'loading', doctors: [] });
+  const [clinicalTeamState, setClinicalTeamState] = useState<ClinicalTeamState>({ status: 'loading', teamMembers: [] });
 
   useEffect(() => {
     function handlePopState(): void {
@@ -49,7 +49,7 @@ function App() {
     let ignore = false;
 
     async function loadClinicalTeam(): Promise<void> {
-      setClinicalTeamState((current) => ({ status: 'loading', doctors: current.doctors }));
+      setClinicalTeamState((current) => ({ status: 'loading', teamMembers: current.teamMembers }));
 
       try {
         const response = await fetch('/api/clinical-team');
@@ -58,15 +58,15 @@ function App() {
           throw new Error(`Clinical team request failed with ${response.status}.`);
         }
 
-        const payload = (await response.json()) as { doctors?: Doctor[] };
+        const payload = (await response.json()) as { teamMembers?: TeamMember[] };
 
         if (!ignore) {
-          setClinicalTeamState({ status: 'loaded', doctors: payload.doctors ?? [] });
+          setClinicalTeamState({ status: 'loaded', teamMembers: payload.teamMembers ?? [] });
         }
       } catch (error) {
         if (!ignore) {
           const message = error instanceof Error ? error.message : 'Clinical team request failed.';
-          setClinicalTeamState((current) => ({ status: 'error', doctors: current.doctors, error: message }));
+          setClinicalTeamState((current) => ({ status: 'error', teamMembers: current.teamMembers, error: message }));
         }
       }
     }
