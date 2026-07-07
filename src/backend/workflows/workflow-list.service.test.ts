@@ -170,6 +170,9 @@ describe('getWorkflow', () => {
           priority: 'normal',
           caseSummary: 'Renal biopsy review requested.',
           reason: 'Routing reason.',
+          assignedDoctorId: null,
+          assignedDoctorName: null,
+          confidence: null,
         },
         {
           id: 10,
@@ -183,8 +186,57 @@ describe('getWorkflow', () => {
           priority: null,
           caseSummary: null,
           reason: 'Waiting for doctor assignment.',
+          assignedDoctorId: null,
+          assignedDoctorName: null,
+          confidence: null,
         },
       ],
     });
+  });
+
+  it('maps assignment output fields for reassignment tasks', async () => {
+    const createdAt = new Date('2026-07-06T01:00:00.000Z');
+    const updatedAt = new Date('2026-07-06T01:10:00.000Z');
+    const taskCreatedAt = new Date('2026-07-06T01:06:00.000Z');
+    const taskUpdatedAt = new Date('2026-07-06T01:07:00.000Z');
+    const findUnique = vi.fn<WorkflowListQueryClient['workflow']['findUnique']>().mockResolvedValue({
+      id: 7,
+      status: 'assigned',
+      createdAt,
+      updatedAt,
+      _count: {
+        requests: 1,
+        tasks: 1,
+      },
+      tasks: [
+        {
+          id: 10,
+          requestId: 4,
+          taskType: 'doctor_reassignment',
+          sequence: 5,
+          status: 'completed',
+          output: {
+            assignedDoctorId: 7,
+            assignedDoctorName: 'Dr. Emily Chen',
+            assignmentReason: 'Requested by user.',
+            confidence: 0.95,
+          },
+          reason: 'Requested by user.',
+          createdAt: taskCreatedAt,
+          updatedAt: taskUpdatedAt,
+        },
+      ],
+    });
+    const client: WorkflowListQueryClient = {
+      workflow: { findMany: vi.fn(), findUnique },
+    };
+
+    const workflow = await getWorkflow(7, { client });
+
+    expect(workflow?.tasks[0]).toEqual(expect.objectContaining({
+      assignedDoctorId: 7,
+      assignedDoctorName: 'Dr. Emily Chen',
+      confidence: 0.95,
+    }));
   });
 });

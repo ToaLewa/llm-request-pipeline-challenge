@@ -720,6 +720,36 @@ p {
   box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
 }
 
+.workflow-chat-composer textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.workflow-action-message {
+  padding: 0.9rem 1rem;
+  border-radius: 1rem;
+  color: #334155;
+  background: #f1f5f9;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.workflow-action-message.is-completed {
+  color: #047857;
+  background: #d1fae5;
+}
+
+.workflow-action-message.is-unsupported,
+.workflow-action-message.is-needs_review {
+  color: #9a3412;
+  background: #ffedd5;
+}
+
+.workflow-action-message.is-error {
+  color: #9a3412;
+  background: #fff7ed;
+}
+
 .doctor-card {
   display: grid;
   gap: 1.15rem;

@@ -2,9 +2,11 @@ import { describe, expect, it, vi } from 'vitest';
 import type { RoutingDecision } from '../inference/routing';
 import {
   findCandidateDoctors,
+  findCandidateDoctorsByName,
   findCandidateDoctorsBySkillCodes,
   normalizeSkillCode,
   skillCodesFromRoutingDecision,
+  type CandidateDoctorByNameQueryClient,
   type CandidateDoctorQueryClient,
 } from './candidates';
 
@@ -179,6 +181,54 @@ describe('findCandidateDoctorsBySkillCodes', () => {
     const findMany = vi.fn<CandidateDoctorQueryClient['doctor']['findMany']>();
 
     await expect(findCandidateDoctorsBySkillCodes([' ', ''], { client: { doctor: { findMany } } })).resolves.toEqual([]);
+    expect(findMany).not.toHaveBeenCalled();
+  });
+});
+
+describe('findCandidateDoctorsByName', () => {
+  it('searches active available doctors by case-insensitive name', async () => {
+    const findMany = vi.fn<CandidateDoctorByNameQueryClient['doctor']['findMany']>().mockResolvedValue([
+      {
+        id: 1,
+        name: 'Dr. Emily Chen',
+        description: 'Renal pathology.',
+        ptoStatus: false,
+        currentLoad: 4,
+        active: true,
+        skills: [{ skill: { name: 'Renal Pathology', skillCode: 'renal-pathology', category: 'specialty' } }],
+      },
+    ]);
+
+    const candidates = await findCandidateDoctorsByName('Emily Chen', {
+      client: { doctor: { findMany } },
+    });
+
+    expect(findMany).toHaveBeenCalledWith({
+      where: {
+        active: true,
+        ptoStatus: false,
+        name: {
+          contains: 'Emily Chen',
+          mode: 'insensitive',
+        },
+      },
+      include: {
+        skills: {
+          include: {
+            skill: true,
+          },
+        },
+      },
+      orderBy: [{ currentLoad: 'asc' }],
+      take: 8,
+    });
+    expect(candidates.map((candidate) => candidate.name)).toEqual(['Dr. Emily Chen']);
+  });
+
+  it('does not query doctors without a name', async () => {
+    const findMany = vi.fn<CandidateDoctorByNameQueryClient['doctor']['findMany']>();
+
+    await expect(findCandidateDoctorsByName(' ', { client: { doctor: { findMany } } })).resolves.toEqual([]);
     expect(findMany).not.toHaveBeenCalled();
   });
 });

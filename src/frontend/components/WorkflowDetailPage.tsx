@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent, type MouseEvent } from 'react';
 import { formatLabel } from '../format';
-import type { AppRoute, WorkflowDetail, WorkflowDetailState, WorkflowTaskSummary } from '../types';
+import type { AppRoute, WorkflowActionResult, WorkflowDetail, WorkflowDetailState, WorkflowTaskSummary } from '../types';
 import { Navigation } from './Navigation';
 
 type WorkflowDetailPageProps = {
@@ -8,40 +8,32 @@ type WorkflowDetailPageProps = {
   onNavigate: (route: AppRoute) => void;
 };
 
+type WorkflowActionState =
+  | { status: 'idle'; message?: never }
+  | { status: 'submitting'; message?: never }
+  | { status: 'completed' | 'unsupported' | 'needs_review' | 'error'; message: string };
+
 export function WorkflowDetailPage({ workflowId, onNavigate }: WorkflowDetailPageProps) {
   const [workflowState, setWorkflowState] = useState<WorkflowDetailState>({ status: 'loading' });
   const [taskDraft, setTaskDraft] = useState('');
+  const [actionState, setActionState] = useState<WorkflowActionState>({ status: 'idle' });
 
   useEffect(() => {
     let ignore = false;
 
-    async function loadWorkflow(): Promise<void> {
-      setWorkflowState({ status: 'loading' });
-
-      try {
-        const response = await fetch(`/api/workflows/${workflowId}`);
-        const payload = (await response.json()) as { workflow?: WorkflowDetail; error?: string };
-
-        if (!response.ok) {
-          throw new Error(payload.error ?? `Workflow request failed with ${response.status}.`);
-        }
-
-        if (!payload.workflow) {
-          throw new Error('Workflow response did not include workflow details.');
-        }
-
+    void loadWorkflowDetails(workflowId).then(
+      (workflow) => {
         if (!ignore) {
-          setWorkflowState({ status: 'loaded', workflow: payload.workflow });
+          setWorkflowState({ status: 'loaded', workflow });
         }
-      } catch (error) {
+      },
+      (error: unknown) => {
         if (!ignore) {
           const message = error instanceof Error ? error.message : 'Workflow request failed.';
           setWorkflowState({ status: 'error', error: message });
         }
-      }
-    }
-
-    void loadWorkflow();
+      },
+    );
 
     return () => {
       ignore = true;
@@ -54,8 +46,38 @@ export function WorkflowDetailPage({ workflowId, onNavigate }: WorkflowDetailPag
     onNavigate('/workflows');
   }
 
-  function handleTaskDraftSubmit(event: FormEvent<HTMLFormElement>): void {
+  async function handleTaskDraftSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
+
+    const message = taskDraft.trim();
+
+    if (!message) {
+      setActionState({ status: 'error', message: 'Enter a workflow action before submitting.' });
+      return;
+    }
+
+    setActionState({ status: 'submitting' });
+
+    try {
+      const response = await fetch(`/api/workflows/${workflowId}/actions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message }),
+      });
+      const payload = await response.json() as WorkflowActionResult | { error?: string };
+
+      if (!response.ok) {
+        throw new Error('error' in payload && payload.error ? payload.error : `Workflow action failed with ${response.status}.`);
+      }
+
+      const result = payload as WorkflowActionResult;
+      setTaskDraft('');
+      setActionState({ status: result.status, message: result.message });
+      setWorkflowState({ status: 'loaded', workflow: await loadWorkflowDetails(workflowId) });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Workflow action failed.';
+      setActionState({ status: 'error', message });
+    }
   }
 
   return (
@@ -85,27 +107,33 @@ export function WorkflowDetailPage({ workflowId, onNavigate }: WorkflowDetailPag
       <details className="workflow-chat-panel">
         <summary className="workflow-chat-summary">
           <span>
-            <span className="eyebrow">Task Chat</span>
-            <span className="workflow-chat-title">Create a follow-up task</span>
+            <span className="eyebrow">Workflow Action</span>
+            <span className="workflow-chat-title">Send an instruction</span>
           </span>
           <span className="workflow-chat-toggle">Expand</span>
         </summary>
         <div className="workflow-chat-content">
-          <p>Draft the next instruction for this workflow. Task creation will be connected here next.</p>
+          <p>Tell the workflow what should happen next, such as reassigning the doctor. Unsupported actions will be recorded for auditability.</p>
           <form className="workflow-chat-composer" onSubmit={handleTaskDraftSubmit}>
             <label className="sr-only" htmlFor="workflow-task-draft">Task instruction</label>
             <textarea
               id="workflow-task-draft"
               value={taskDraft}
               onChange={(event) => setTaskDraft(event.target.value)}
-              placeholder="Ask for a new task, clarification, or follow-up action for this workflow..."
+              disabled={actionState.status === 'submitting'}
+              placeholder="Example: Please reassign this to Dr. Emily Chen..."
               rows={4}
             />
             <div className="composer-actions">
               <span>{taskDraft.trim().length} characters drafted</span>
-              <button type="submit" disabled>Create task soon</button>
+              <button type="submit" disabled={actionState.status === 'submitting' || !taskDraft.trim()}>
+                {actionState.status === 'submitting' ? 'Sending...' : 'Send Action'}
+              </button>
             </div>
           </form>
+          {actionState.status !== 'idle' && actionState.status !== 'submitting' ? (
+            <p className={`workflow-action-message is-${actionState.status}`} role={actionState.status === 'error' ? 'alert' : 'status'}>{actionState.message}</p>
+          ) : null}
         </div>
       </details>
 
@@ -156,10 +184,28 @@ function WorkflowTaskRow({ task }: { task: WorkflowTaskSummary }) {
       <td><span className="status-pill status-available">{formatLabel(task.status)}</span></td>
       <td>{formatLabel(task.priority)}</td>
       <td>{task.requestId ? `#${task.requestId}` : 'Automated'}</td>
-      <td><span className="workflow-summary">{task.reason ?? task.caseSummary ?? 'No reason recorded'}</span></td>
+      <td>
+        <span className="workflow-summary">{task.reason ?? task.caseSummary ?? 'No reason recorded'}</span>
+        {task.assignedDoctorName ? <span className="workflow-task-status">Assigned to {task.assignedDoctorName}</span> : null}
+      </td>
       <td>{formatDate(task.createdAt)}</td>
     </tr>
   );
+}
+
+async function loadWorkflowDetails(workflowId: number): Promise<WorkflowDetail> {
+  const response = await fetch(`/api/workflows/${workflowId}`);
+  const payload = (await response.json()) as { workflow?: WorkflowDetail; error?: string };
+
+  if (!response.ok) {
+    throw new Error(payload.error ?? `Workflow request failed with ${response.status}.`);
+  }
+
+  if (!payload.workflow) {
+    throw new Error('Workflow response did not include workflow details.');
+  }
+
+  return payload.workflow;
 }
 
 function formatDate(value: string): string {

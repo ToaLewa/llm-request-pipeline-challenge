@@ -66,6 +66,9 @@ export type WorkflowTaskSummary = {
   priority: string | null;
   caseSummary: string | null;
   reason: string | null;
+  assignedDoctorId: number | null;
+  assignedDoctorName: string | null;
+  confidence: number | null;
 };
 
 export type WorkflowDetail = WorkflowSummary & {
@@ -78,3 +81,12 @@ export type WorkflowDetailState =
   | { status: 'error'; workflow?: never; error: string };
 
 export type AppRoute = '/' | '/requests' | '/doctors' | '/workflows' | `/workflows/${number}`;
+
+export type WorkflowActionResult = {
+  workflowId: number;
+  actionTaskId: number;
+  resultTaskId: number | null;
+  action: string;
+  status: 'completed' | 'unsupported' | 'needs_review';
+  message: string;
+};

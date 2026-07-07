@@ -52,6 +52,9 @@ export type WorkflowTaskSummary = {
   priority: string | null;
   caseSummary: string | null;
   reason: string | null;
+  assignedDoctorId: number | null;
+  assignedDoctorName: string | null;
+  confidence: number | null;
 };
 
 export type WorkflowDetail = WorkflowSummary & {
@@ -161,6 +164,7 @@ function toWorkflowSummary(workflow: WorkflowListRecord): WorkflowSummary {
 function toWorkflowTaskSummary(task: WorkflowTaskRecord): WorkflowTaskSummary {
   const routingOutput = toTaskRoutingOutput(task);
   const reason = reasonForTask(task);
+  const assignmentOutput = toAssignmentOutput(task.output);
 
   return {
     id: task.id,
@@ -174,6 +178,9 @@ function toWorkflowTaskSummary(task: WorkflowTaskRecord): WorkflowTaskSummary {
     priority: routingOutput.priority,
     caseSummary: routingOutput.caseSummary,
     reason,
+    assignedDoctorId: assignmentOutput.assignedDoctorId,
+    assignedDoctorName: assignmentOutput.assignedDoctorName,
+    confidence: assignmentOutput.confidence,
   };
 }
 
@@ -207,6 +214,28 @@ function toRoutingOutput(output: unknown): Pick<WorkflowSummary, 'route' | 'prio
 
 function emptyRoutingOutput(): Pick<WorkflowSummary, 'route' | 'priority' | 'caseSummary' | 'reason'> {
   return { route: null, priority: null, caseSummary: null, reason: null };
+}
+
+function toAssignmentOutput(output: unknown): Pick<WorkflowTaskSummary, 'assignedDoctorId' | 'assignedDoctorName' | 'confidence'> {
+  if (!output || typeof output !== 'object') {
+    return emptyAssignmentOutput();
+  }
+
+  const record = output as Record<string, unknown>;
+
+  return {
+    assignedDoctorId: typeof record.assignedDoctorId === 'number' ? record.assignedDoctorId : null,
+    assignedDoctorName: typeof record.assignedDoctorName === 'string' ? record.assignedDoctorName : null,
+    confidence: typeof record.confidence === 'number'
+      ? record.confidence
+      : typeof record.rankingConfidence === 'number'
+        ? record.rankingConfidence
+        : null,
+  };
+}
+
+function emptyAssignmentOutput(): Pick<WorkflowTaskSummary, 'assignedDoctorId' | 'assignedDoctorName' | 'confidence'> {
+  return { assignedDoctorId: null, assignedDoctorName: null, confidence: null };
 }
 
 function reasonForTask(task: WorkflowTaskRecord): string | null {

@@ -60,6 +60,30 @@ export type CandidateDoctorQueryClient = {
   };
 };
 
+export type CandidateDoctorByNameQueryClient = {
+  doctor: {
+    findMany(args: {
+      where: {
+        active: true;
+        ptoStatus: false;
+        name: {
+          contains: string;
+          mode: 'insensitive';
+        };
+      };
+      include: {
+        skills: {
+          include: {
+            skill: true;
+          };
+        };
+      };
+      orderBy: Array<{ currentLoad: 'asc' }>;
+      take: number;
+    }): Promise<CandidateDoctorRecord[]>;
+  };
+};
+
 export type FindCandidateDoctorsOptions = {
   client?: CandidateDoctorQueryClient;
   limit?: number;
@@ -138,6 +162,40 @@ export async function findCandidateDoctorsBySkillCodes(
     .sort((a, b) => b.matchCount - a.matchCount || a.candidate.currentLoad - b.candidate.currentLoad)
     .slice(0, limit)
     .map(({ candidate }) => toCandidateDoctorPayload(candidate));
+}
+
+export async function findCandidateDoctorsByName(
+  name: string,
+  options: { client?: CandidateDoctorByNameQueryClient; limit?: number } = {},
+): Promise<CandidateDoctorPayload[]> {
+  const normalizedName = name.trim();
+
+  if (!normalizedName) {
+    return [];
+  }
+
+  const client: CandidateDoctorByNameQueryClient = options.client ?? getPrisma();
+  const candidates = await client.doctor.findMany({
+    where: {
+      active: true,
+      ptoStatus: false,
+      name: {
+        contains: normalizedName,
+        mode: 'insensitive',
+      },
+    },
+    include: {
+      skills: {
+        include: {
+          skill: true,
+        },
+      },
+    },
+    orderBy: [{ currentLoad: 'asc' }],
+    take: options.limit ?? 8,
+  });
+
+  return candidates.map(toCandidateDoctorPayload);
 }
 
 function toCandidateDoctorPayload(candidate: CandidateDoctorRecord): CandidateDoctorPayload {
