@@ -48,13 +48,9 @@ export function WorkflowsPage({ onNavigate }: WorkflowsPageProps) {
     <section className="page-shell workflows-page">
       <Navigation route="/workflows" onNavigate={onNavigate} />
       <header className="hero">
-        <p className="eyebrow header-label">
-          <span className="logo-mark" aria-hidden="true"></span>
-          <span>Workflow Monitor</span>
-        </p>
         <div className="hero-grid">
           <div>
-            <h1>Workflows</h1>
+            <h2>Workflows</h2>
             <p className="intro">Track routed requests as durable workflows with their latest task state and routing context.</p>
           </div>
           <aside className="summary-card" aria-label="Workflow summary">

@@ -15,13 +15,9 @@ export function DoctorsPage({ doctorPoolState, onNavigate }: DoctorsPageProps) {
     <section className="page-shell doctors-page">
       <Navigation route="/doctors" onNavigate={onNavigate} />
       <header className="hero">
-        <p className="eyebrow header-label">
-          <span className="logo-mark" aria-hidden="true"></span>
-          <span>Doctor Assignment</span>
-        </p>
         <div className="hero-grid">
           <div>
-            <h1>Doctor Pool</h1>
+            <h2>Doctor Pool</h2>
             <p className="intro">Specialists available to the request pipeline, grouped by normalized skills and case types.</p>
           </div>
           <aside className="summary-card" aria-label="Doctor pool summary">
