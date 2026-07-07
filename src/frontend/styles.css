@@ -750,6 +750,23 @@ p {
   background: #fff7ed;
 }
 
+.workflow-action-thinking {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.9rem 1rem;
+  border-radius: 1rem;
+  color: #475569;
+  background: #f1f5f9;
+  font-weight: 800;
+}
+
+.workflow-action-spinner {
+  width: 1.6rem;
+  height: 1.6rem;
+  border-width: 0.22rem;
+}
+
 .doctor-card {
   display: grid;
   gap: 1.15rem;

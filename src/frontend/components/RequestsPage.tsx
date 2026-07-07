@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { formatLabel } from '../format';
 import type { AppRoute, RequestSubmissionResult } from '../types';
 import { useAppNavigation } from '../useAppNavigation';
+import { LoadingSpinner } from './LoadingSpinner';
 import { Navigation } from './Navigation';
 
 type RequestsPageProps = {
@@ -64,13 +65,14 @@ export function RequestsPage({ onNavigate }: RequestsPageProps) {
             <p className="intro">Describe your request in plain language, and we will route this to the appropriate team.</p>
           </div>
 
-          {isSubmitting ? (
-            <div className="request-thinking" role="status" aria-live="polite">
-              <span className="thinking-spinner" aria-hidden="true" />
-              <strong>Routing request</strong>
-              <p>The server is thinking through the best workflow.</p>
-            </div>
-          ) : (
+          <LoadingSpinner
+            isLoading={isSubmitting}
+            className="request-thinking"
+            title="Routing request"
+            message="The server is thinking through the best workflow."
+          />
+
+          {!isSubmitting ? (
             <form className="request-composer" onSubmit={handleSubmit}>
               <label className="sr-only" htmlFor="request-text">Request details</label>
               <textarea
@@ -85,7 +87,7 @@ export function RequestsPage({ onNavigate }: RequestsPageProps) {
                 <button type="submit">Route Request</button>
               </div>
             </form>
-          )}
+          ) : null}
         </section>
 
         {submissionState.status === 'success' ? (

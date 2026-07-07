@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent, type MouseEvent } from 'react';
 import { formatLabel } from '../format';
 import type { AppRoute, WorkflowActionResult, WorkflowDetail, WorkflowDetailState, WorkflowTaskSummary } from '../types';
+import { LoadingSpinner } from './LoadingSpinner';
 import { Navigation } from './Navigation';
 
 type WorkflowDetailPageProps = {
@@ -17,6 +18,7 @@ export function WorkflowDetailPage({ workflowId, onNavigate }: WorkflowDetailPag
   const [workflowState, setWorkflowState] = useState<WorkflowDetailState>({ status: 'loading' });
   const [taskDraft, setTaskDraft] = useState('');
   const [actionState, setActionState] = useState<WorkflowActionState>({ status: 'idle' });
+  const isSubmitting = actionState.status === 'submitting';
 
   useEffect(() => {
     let ignore = false;
@@ -104,71 +106,81 @@ export function WorkflowDetailPage({ workflowId, onNavigate }: WorkflowDetailPag
         </div>
       </header>
 
-      <details className="workflow-chat-panel">
-        <summary className="workflow-chat-summary">
-          <span>
-            <span className="eyebrow">Workflow Action</span>
-            <span className="workflow-chat-title">Send an instruction</span>
-          </span>
-          <span className="workflow-chat-toggle">Expand</span>
-        </summary>
-        <div className="workflow-chat-content">
-          <p>Tell the workflow what should happen next, such as reassigning the doctor. Unsupported actions will be recorded for auditability.</p>
-          <form className="workflow-chat-composer" onSubmit={handleTaskDraftSubmit}>
-            <label className="sr-only" htmlFor="workflow-task-draft">Task instruction</label>
-            <textarea
-              id="workflow-task-draft"
-              value={taskDraft}
-              onChange={(event) => setTaskDraft(event.target.value)}
-              disabled={actionState.status === 'submitting'}
-              placeholder="Example: Please reassign this to Dr. Emily Chen..."
-              rows={4}
-            />
-            <div className="composer-actions">
-              <span>{taskDraft.trim().length} characters drafted</span>
-              <button type="submit" disabled={actionState.status === 'submitting' || !taskDraft.trim()}>
-                {actionState.status === 'submitting' ? 'Sending...' : 'Send Action'}
-              </button>
-            </div>
-          </form>
-          {actionState.status !== 'idle' && actionState.status !== 'submitting' ? (
-            <p className={`workflow-action-message is-${actionState.status}`} role={actionState.status === 'error' ? 'alert' : 'status'}>{actionState.message}</p>
-          ) : null}
-        </div>
-      </details>
+      {!isSubmitting &&
+        <details className="workflow-chat-panel">
+          <summary className="workflow-chat-summary">
+            <span>
+              <span className="eyebrow">Workflow Action</span>
+              <span className="workflow-chat-title">Send an instruction</span>
+            </span>
+            <span className="workflow-chat-toggle">Expand</span>
+          </summary>
+          <div className="workflow-chat-content">
+            <p>Tell the workflow what should happen next, such as reassigning the doctor. Unsupported actions will be recorded for auditability.</p>
+            <form className="workflow-chat-composer" onSubmit={handleTaskDraftSubmit}>
+              <label className="sr-only" htmlFor="workflow-task-draft">Task instruction</label>
+              <textarea
+                id="workflow-task-draft"
+                value={taskDraft}
+                onChange={(event) => setTaskDraft(event.target.value)}
+                disabled={actionState.status === 'submitting'}
+                placeholder="Example: Please reassign this to Dr. Emily Chen..."
+                rows={4}
+              />
+              <div className="composer-actions">
+                <span>{taskDraft.trim().length} characters drafted</span>
+                <button type="submit" disabled={actionState.status === 'submitting' || !taskDraft.trim()}>
+                  {actionState.status === 'submitting' ? 'Sending...' : 'Send Action'}
+                </button>
+              </div>
+            </form>
+            {actionState.status !== 'idle' && actionState.status !== 'submitting' ? (
+              <p className={`workflow-action-message is-${actionState.status}`} role={actionState.status === 'error' ? 'alert' : 'status'}>{actionState.message}</p>
+            ) : null}
+          </div>
+        </details>
+      }
+      <LoadingSpinner
+        isLoading={isSubmitting}
+        className="workflow-action-thinking"
+        spinnerClassName="workflow-action-spinner"
+        message="Processing workflow action..."
+      />
 
-      <section className="workflow-table-shell" aria-label="Workflow tasks">
-        <table className="workflow-table workflow-task-table">
-          <thead>
-            <tr>
-              <th scope="col">Task</th>
-              <th scope="col">Status</th>
-              <th scope="col">Priority</th>
-              <th scope="col">Request</th>
-              <th scope="col">Reason</th>
-              <th scope="col">Created</th>
-            </tr>
-          </thead>
-          <tbody>
-            {workflowState.status === 'loading' ? (
+      {!isSubmitting &&
+        <section className="workflow-table-shell" aria-label="Workflow tasks">
+          <table className="workflow-table workflow-task-table">
+            <thead>
               <tr>
-                <td className="workflow-table-message" colSpan={7}>Loading workflow tasks...</td>
+                <th scope="col">Task</th>
+                <th scope="col">Status</th>
+                <th scope="col">Priority</th>
+                <th scope="col">Request</th>
+                <th scope="col">Reason</th>
+                <th scope="col">Created</th>
               </tr>
-            ) : null}
-            {workflowState.status === 'error' ? (
-              <tr>
-                <td className="workflow-table-message is-error" colSpan={7}>{workflowState.error}</td>
-              </tr>
-            ) : null}
-            {workflowState.status === 'loaded' && workflowState.workflow.tasks.length === 0 ? (
-              <tr>
-                <td className="workflow-table-message" colSpan={7}>No tasks have been recorded for this workflow.</td>
-              </tr>
-            ) : null}
-            {workflowState.status === 'loaded' ? workflowState.workflow.tasks.slice().reverse().map((task) => <WorkflowTaskRow key={task.id} task={task} />) : null}
-          </tbody>
-        </table>
-      </section>
+            </thead>
+            <tbody>
+              {workflowState.status === 'loading' ? (
+                <tr>
+                  <td className="workflow-table-message" colSpan={7}>Loading workflow tasks...</td>
+                </tr>
+              ) : null}
+              {workflowState.status === 'error' ? (
+                <tr>
+                  <td className="workflow-table-message is-error" colSpan={7}>{workflowState.error}</td>
+                </tr>
+              ) : null}
+              {workflowState.status === 'loaded' && workflowState.workflow.tasks.length === 0 ? (
+                <tr>
+                  <td className="workflow-table-message" colSpan={7}>No tasks have been recorded for this workflow.</td>
+                </tr>
+              ) : null}
+              {workflowState.status === 'loaded' ? workflowState.workflow.tasks.slice().reverse().map((task) => <WorkflowTaskRow key={task.id} task={task} />) : null}
+            </tbody>
+          </table>
+        </section>
+      }
     </section>
   );
 }
