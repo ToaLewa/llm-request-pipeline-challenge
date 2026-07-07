@@ -29,7 +29,7 @@ export function ClinicalTeamPage({ clinicalTeamState, onNavigate }: ClinicalTeam
       </header>
 
       <section className="clinical-team-grid" aria-label="Clinical team members">
-        {teamMembers.length > 0 ? teamMembers.map((member) => <ClinicalTeamMemberCard member={member} key={member.id} />) : <ClinicalTeamStatus clinicalTeamState={clinicalTeamState} />}
+        {teamMembers.length > 0 ? teamMembers.map((member) => <ClinicalTeamMemberCard member={member} key={member.id} onNavigate={onNavigate} />) : <ClinicalTeamStatus clinicalTeamState={clinicalTeamState} />}
       </section>
     </section>
   );

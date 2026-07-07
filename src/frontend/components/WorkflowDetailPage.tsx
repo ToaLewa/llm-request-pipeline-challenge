@@ -123,18 +123,18 @@ export function WorkflowDetailPage({ workflowId, onNavigate }: WorkflowDetailPag
                 id="workflow-task-draft"
                 value={taskDraft}
                 onChange={(event) => setTaskDraft(event.target.value)}
-                disabled={actionState.status === 'submitting'}
+                disabled={isSubmitting}
                 placeholder="Example: Please reassign this to Dr. Emily Chen..."
                 rows={4}
               />
               <div className="composer-actions">
                 <span>{taskDraft.trim().length} characters drafted</span>
-                <button type="submit" disabled={actionState.status === 'submitting' || !taskDraft.trim()}>
-                  {actionState.status === 'submitting' ? 'Sending...' : 'Send Action'}
+                <button type="submit" disabled={isSubmitting || !taskDraft.trim()}>
+                  {isSubmitting ? 'Sending...' : 'Send Action'}
                 </button>
               </div>
             </form>
-            {actionState.status !== 'idle' && actionState.status !== 'submitting' ? (
+            {actionState.status !== 'idle' ? (
               <p className={`workflow-action-message is-${actionState.status}`} role={actionState.status === 'error' ? 'alert' : 'status'}>{actionState.message}</p>
             ) : null}
           </div>

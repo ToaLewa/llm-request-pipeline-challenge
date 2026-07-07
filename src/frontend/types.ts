@@ -15,6 +15,32 @@ export type ClinicalTeamState =
   | { status: 'loaded'; teamMembers: TeamMember[]; error?: never }
   | { status: 'error'; teamMembers: TeamMember[]; error: string };
 
+export type AssignedCase = {
+  id: number;
+  assignmentSummary: string;
+  workflowId: number;
+  workflowTaskId: number;
+  requestId: number | null;
+  taskType: string;
+  status: string;
+  priority: string | null;
+  caseSummary: string | null;
+  caseType: string | null;
+  reason: string | null;
+  assignedAt: string;
+  updatedAt: string;
+};
+
+export type TeamMemberCases = {
+  teamMember: Pick<TeamMember, 'id' | 'name'>;
+  cases: AssignedCase[];
+};
+
+export type TeamMemberCasesState =
+  | { status: 'loading'; teamMemberCases?: never; error?: never }
+  | { status: 'loaded'; teamMemberCases: TeamMemberCases; error?: never }
+  | { status: 'error'; teamMemberCases?: never; error: string };
+
 export type RoutingDecision = {
   route: string;
   confidence: number;
@@ -80,7 +106,7 @@ export type WorkflowDetailState =
   | { status: 'loaded'; workflow: WorkflowDetail; error?: never }
   | { status: 'error'; workflow?: never; error: string };
 
-export type AppRoute = '/' | '/requests' | '/clinical-team' | '/workflows' | `/workflows/${number}`;
+export type AppRoute = '/' | '/requests' | '/clinical-team' | `/clinical-team/${number}/cases` | '/workflows' | `/workflows/${number}`;
 
 export type WorkflowActionResult = {
   workflowId: number;

@@ -1,7 +1,10 @@
 import type { TeamMember } from '../types';
+import { useAppNavigation } from '../useAppNavigation';
+import type { AppRoute } from '../types';
 
 type ClinicalTeamMemberCardProps = {
   member: TeamMember;
+  onNavigate: (route: AppRoute) => void;
 };
 
 function availabilityLabel(member: TeamMember): string {
@@ -24,12 +27,18 @@ function Tags({ values }: { values: string[] }) {
   );
 }
 
-export function ClinicalTeamMemberCard({ member }: ClinicalTeamMemberCardProps) {
+export function ClinicalTeamMemberCard({ member, onNavigate }: ClinicalTeamMemberCardProps) {
+  const { handleNavigationClick } = useAppNavigation(onNavigate);
   const muted = member.ptoStatus || !member.active;
   const statusClass = muted ? 'status-pto' : 'status-available';
+  const memberCasesRoute: AppRoute = `/clinical-team/${member.id}/cases`;
 
   return (
-    <article className={`clinical-team-member-card ${muted ? 'is-muted' : ''}`}>
+    <a
+      className={`clinical-team-member-card ${muted ? 'is-muted' : ''}`}
+      href={memberCasesRoute}
+      onClick={(event) => handleNavigationClick(event, memberCasesRoute)}
+    >
       <div className="clinical-team-member-card-header">
         <div>
           <p className="clinical-team-member-role">Pathologist</p>
@@ -54,6 +63,6 @@ export function ClinicalTeamMemberCard({ member }: ClinicalTeamMemberCardProps) 
         <h3>Case Types</h3>
         <div className="tag-list"><Tags values={member.caseTypes} /></div>
       </div>
-    </article>
+    </a>
   );
 }

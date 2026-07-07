@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { ClinicalTeamPage } from './components/ClinicalTeamPage';
 import { LandingPage } from './components/LandingPage';
 import { RequestsPage } from './components/RequestsPage';
+import { TeamMemberCasesPage } from './components/TeamMemberCasesPage';
 import { WorkflowDetailPage } from './components/WorkflowDetailPage';
 import { WorkflowsPage } from './components/WorkflowsPage';
 import './styles.css';
@@ -27,6 +28,12 @@ function getRoute(): AppRoute {
 
   if (workflowMatch) {
     return `/workflows/${Number.parseInt(workflowMatch[1], 10)}`;
+  }
+
+  const teamMemberCasesMatch = /^\/clinical-team\/(\d+)\/cases$/.exec(window.location.pathname);
+
+  if (teamMemberCasesMatch) {
+    return `/clinical-team/${Number.parseInt(teamMemberCasesMatch[1], 10)}/cases`;
   }
 
   return window.location.pathname === '/clinical-team' ? '/clinical-team' : '/';
@@ -88,6 +95,12 @@ function App() {
 
   if (route.startsWith('/workflows/')) {
     return <WorkflowDetailPage workflowId={Number.parseInt(route.slice('/workflows/'.length), 10)} onNavigate={setRoute} />;
+  }
+
+  const teamMemberCasesMatch = /^\/clinical-team\/(\d+)\/cases$/.exec(route);
+
+  if (teamMemberCasesMatch) {
+    return <TeamMemberCasesPage teamMemberId={Number.parseInt(teamMemberCasesMatch[1], 10)} onNavigate={setRoute} />;
   }
 
   return route === '/clinical-team' ? (

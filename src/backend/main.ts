@@ -1,5 +1,5 @@
 import { createServer } from 'node:http';
-import { getClinicalTeamController } from './doctors/clinical-team.controller';
+import { getClinicalTeamController, getTeamMemberCasesController } from './doctors/clinical-team.controller';
 import { createRequestController } from './requests/request.controller';
 import { createWorkflowActionController, getWorkflowController, getWorkflowsController } from './workflows/workflow.controller';
 
@@ -18,6 +18,20 @@ const server = createServer((request, response) => {
     }
 
     void getClinicalTeamController(request, response);
+    return;
+  }
+
+  const teamMemberCasesMatch = /^\/api\/clinical-team\/(\d+)\/cases$/.exec(url.pathname);
+
+  if (teamMemberCasesMatch) {
+    if (request.method !== 'GET') {
+      response.statusCode = 405;
+      response.setHeader('Allow', 'GET');
+      response.end();
+      return;
+    }
+
+    void getTeamMemberCasesController(request, response, Number.parseInt(teamMemberCasesMatch[1], 10));
     return;
   }
 

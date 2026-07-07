@@ -777,8 +777,21 @@ p {
   box-shadow: 0 1.25rem 3rem rgba(15, 23, 42, 0.08);
 }
 
+.clinical-team-member-card:hover,
+.clinical-team-member-card:focus-visible {
+  border-color: rgba(15, 118, 110, 0.28);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 1.5rem 3.5rem rgba(15, 118, 110, 0.14);
+  outline: none;
+  transform: translateY(-0.1rem);
+}
+
 .clinical-team-member-card.is-muted {
   background: rgba(255, 255, 255, 0.58);
+}
+
+.assigned-cases-table {
+  min-width: 76rem;
 }
 
 .clinical-team-grid-message {
