@@ -1,4 +1,4 @@
-import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { Request, Response } from 'express';
 import {
   createOpenAIRoutingDecisionClient,
   createRoutingDecision,
@@ -10,13 +10,13 @@ type RequestPayload = {
   rawRequest?: unknown;
 };
 
-export async function createRequestController(request: IncomingMessage, response: ServerResponse): Promise<void> {
+export async function createRequestController(request: Request, response: Response): Promise<void> {
   try {
-    const payload = await readJsonBody<RequestPayload>(request);
+    const payload = (request.body ?? {}) as RequestPayload;
     const rawRequest = typeof payload.rawRequest === 'string' ? payload.rawRequest.trim() : '';
 
     if (!rawRequest) {
-      sendJson(response, 400, { error: 'rawRequest is required.' });
+      response.status(400).json({ error: 'rawRequest is required.' });
       return;
     }
 
@@ -28,35 +28,10 @@ export async function createRequestController(request: IncomingMessage, response
       await processDoctorAssignmentWorkflow(workflow.workflowId);
     }
 
-    sendJson(response, 201, { ...workflow, routingDecision });
+    response.status(201).json({ ...workflow, routingDecision });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to route request.';
     console.error('Failed to create request.', error);
-    sendJson(response, 500, { error: message });
+    response.status(500).json({ error: message });
   }
-}
-
-function readJsonBody<T>(request: IncomingMessage): Promise<T> {
-  return new Promise((resolve, reject) => {
-    let body = '';
-
-    request.setEncoding('utf8');
-    request.on('data', (chunk) => {
-      body += chunk;
-    });
-    request.on('end', () => {
-      try {
-        resolve(JSON.parse(body || '{}') as T);
-      } catch (error) {
-        reject(error);
-      }
-    });
-    request.on('error', reject);
-  });
-}
-
-function sendJson(response: ServerResponse, statusCode: number, payload: unknown): void {
-  response.statusCode = statusCode;
-  response.setHeader('Content-Type', 'application/json; charset=utf-8');
-  response.end(JSON.stringify(payload));
 }

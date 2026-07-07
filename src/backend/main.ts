@@ -1,4 +1,4 @@
-import { createServer } from 'node:http';
+import express, { type ErrorRequestHandler, type RequestHandler } from 'express';
 import { getClinicalTeamController, getTeamMemberCasesController } from './doctors/clinical-team.controller';
 import { createRequestController } from './requests/request.controller';
 import { createWorkflowActionController, getWorkflowController, getWorkflowsController } from './workflows/workflow.controller';
@@ -6,92 +6,40 @@ import { createWorkflowActionController, getWorkflowController, getWorkflowsCont
 const port = Number.parseInt(process.env.PORT ?? '3000', 10);
 const host = process.env.HOST ?? '0.0.0.0';
 
-const server = createServer((request, response) => {
-  const url = new URL(request.url ?? '/', `http://${request.headers.host ?? 'localhost'}`);
+const app = express();
 
-  if (url.pathname === '/api/clinical-team') {
-    if (request.method !== 'GET') {
-      response.statusCode = 405;
-      response.setHeader('Allow', 'GET');
-      response.end();
-      return;
-    }
+app.use(express.json());
 
-    void getClinicalTeamController(request, response);
-    return;
-  }
+app.route('/api/clinical-team').get(getClinicalTeamController).all(methodNotAllowed('GET'));
+app.route('/api/clinical-team/:teamMemberId/cases').get(getTeamMemberCasesController).all(methodNotAllowed('GET'));
+app.route('/api/requests').post(createRequestController).all(methodNotAllowed('POST'));
+app.route('/api/workflows').get(getWorkflowsController).all(methodNotAllowed('GET'));
+app.route('/api/workflows/:workflowId').get(getWorkflowController).all(methodNotAllowed('GET'));
+app.route('/api/workflows/:workflowId/actions').post(createWorkflowActionController).all(methodNotAllowed('POST'));
 
-  const teamMemberCasesMatch = /^\/api\/clinical-team\/(\d+)\/cases$/.exec(url.pathname);
-
-  if (teamMemberCasesMatch) {
-    if (request.method !== 'GET') {
-      response.statusCode = 405;
-      response.setHeader('Allow', 'GET');
-      response.end();
-      return;
-    }
-
-    void getTeamMemberCasesController(request, response, Number.parseInt(teamMemberCasesMatch[1], 10));
-    return;
-  }
-
-  if (url.pathname === '/api/requests') {
-    if (request.method !== 'POST') {
-      response.statusCode = 405;
-      response.setHeader('Allow', 'POST');
-      response.end();
-      return;
-    }
-
-    void createRequestController(request, response);
-    return;
-  }
-
-  if (url.pathname === '/api/workflows') {
-    if (request.method !== 'GET') {
-      response.statusCode = 405;
-      response.setHeader('Allow', 'GET');
-      response.end();
-      return;
-    }
-
-    void getWorkflowsController(request, response);
-    return;
-  }
-
-  const workflowActionMatch = /^\/api\/workflows\/(\d+)\/actions$/.exec(url.pathname);
-
-  if (workflowActionMatch) {
-    if (request.method !== 'POST') {
-      response.statusCode = 405;
-      response.setHeader('Allow', 'POST');
-      response.end();
-      return;
-    }
-
-    void createWorkflowActionController(request, response, Number.parseInt(workflowActionMatch[1], 10));
-    return;
-  }
-
-  const workflowMatch = /^\/api\/workflows\/(\d+)$/.exec(url.pathname);
-
-  if (workflowMatch) {
-    if (request.method !== 'GET') {
-      response.statusCode = 405;
-      response.setHeader('Allow', 'GET');
-      response.end();
-      return;
-    }
-
-    void getWorkflowController(request, response, Number.parseInt(workflowMatch[1], 10));
-    return;
-  }
-
-  response.statusCode = 404;
-  response.setHeader('Content-Type', 'application/json; charset=utf-8');
-  response.end(JSON.stringify({ error: 'Not found.' }));
+app.use((_request, response) => {
+  response.status(404).json({ error: 'Not found.' });
 });
 
-server.listen(port, host, () => {
+const errorHandler: ErrorRequestHandler = (error, _request, response, _next) => {
+  if (error instanceof SyntaxError) {
+    response.status(400).json({ error: 'Invalid JSON body.' });
+    return;
+  }
+
+  console.error('Unhandled server error.', error);
+  response.status(500).json({ error: 'Internal server error.' });
+};
+
+app.use(errorHandler);
+
+app.listen(port, host, () => {
   console.log(`Backend server listening on http://${host}:${port}`);
 });
+
+function methodNotAllowed(allowedMethod: string): RequestHandler {
+  return (_request, response) => {
+    response.setHeader('Allow', allowedMethod);
+    response.status(405).end();
+  };
+}

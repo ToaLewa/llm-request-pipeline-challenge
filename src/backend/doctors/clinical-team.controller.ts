@@ -1,34 +1,36 @@
-import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { Request, Response } from 'express';
+import { parseIntegerParam } from '../utils/route-params';
 import { getClinicalTeam, getTeamMemberCases } from './clinical-team.service';
 
-export async function getClinicalTeamController(_request: IncomingMessage, response: ServerResponse): Promise<void> {
+export async function getClinicalTeamController(_request: Request, response: Response): Promise<void> {
   try {
     const teamMembers = await getClinicalTeam();
-    sendJson(response, 200, { teamMembers });
+    response.status(200).json({ teamMembers });
   } catch (error) {
     console.error('Failed to load clinical team.', error);
-    sendJson(response, 500, { error: 'Failed to load clinical team.' });
+    response.status(500).json({ error: 'Failed to load clinical team.' });
   }
 }
 
-export async function getTeamMemberCasesController(_request: IncomingMessage, response: ServerResponse, teamMemberId: number): Promise<void> {
+export async function getTeamMemberCasesController(request: Request, response: Response): Promise<void> {
   try {
-    const teamMemberCases = await getTeamMemberCases(teamMemberId);
+    const teamMemberId = parseIntegerParam(request.params.teamMemberId);
 
-    if (!teamMemberCases) {
-      sendJson(response, 404, { error: 'Team member not found.' });
+    if (Number.isNaN(teamMemberId)) {
+      response.status(404).json({ error: 'Team member not found.' });
       return;
     }
 
-    sendJson(response, 200, teamMemberCases);
+    const teamMemberCases = await getTeamMemberCases(teamMemberId);
+
+    if (!teamMemberCases) {
+      response.status(404).json({ error: 'Team member not found.' });
+      return;
+    }
+
+    response.status(200).json(teamMemberCases);
   } catch (error) {
     console.error('Failed to load team member cases.', error);
-    sendJson(response, 500, { error: 'Failed to load team member cases.' });
+    response.status(500).json({ error: 'Failed to load team member cases.' });
   }
-}
-
-function sendJson(response: ServerResponse, statusCode: number, payload: unknown): void {
-  response.statusCode = statusCode;
-  response.setHeader('Content-Type', 'application/json; charset=utf-8');
-  response.end(JSON.stringify(payload));
 }

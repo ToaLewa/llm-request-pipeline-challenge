@@ -1,4 +1,5 @@
-import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { Request, Response } from 'express';
+import { parseIntegerParam } from '../utils/route-params';
 import { processWorkflowAction } from './workflow-action.service';
 import { getWorkflow, listWorkflows } from './workflow-list.service';
 
@@ -6,78 +7,67 @@ type WorkflowActionPayload = {
   message?: unknown;
 };
 
-export async function getWorkflowsController(_request: IncomingMessage, response: ServerResponse): Promise<void> {
+export async function getWorkflowsController(_request: Request, response: Response): Promise<void> {
   try {
     const workflows = await listWorkflows();
-    sendJson(response, 200, { workflows });
+    response.status(200).json({ workflows });
   } catch (error) {
     console.error('Failed to load workflows.', error);
-    sendJson(response, 500, { error: 'Failed to load workflows.' });
+    response.status(500).json({ error: 'Failed to load workflows.' });
   }
 }
 
-export async function getWorkflowController(_request: IncomingMessage, response: ServerResponse, workflowId: number): Promise<void> {
+export async function getWorkflowController(request: Request, response: Response): Promise<void> {
   try {
-    const workflow = await getWorkflow(workflowId);
+    const workflowId = parseIntegerParam(request.params.workflowId);
 
-    if (!workflow) {
-      sendJson(response, 404, { error: 'Workflow not found.' });
+    if (Number.isNaN(workflowId)) {
+      response.status(404).json({ error: 'Workflow not found.' });
       return;
     }
 
-    sendJson(response, 200, { workflow });
+    const workflow = await getWorkflow(workflowId);
+
+    if (!workflow) {
+      response.status(404).json({ error: 'Workflow not found.' });
+      return;
+    }
+
+    response.status(200).json({ workflow });
   } catch (error) {
     console.error('Failed to load workflow.', error);
-    sendJson(response, 500, { error: 'Failed to load workflow.' });
+    response.status(500).json({ error: 'Failed to load workflow.' });
   }
 }
 
-export async function createWorkflowActionController(request: IncomingMessage, response: ServerResponse, workflowId: number): Promise<void> {
+export async function createWorkflowActionController(request: Request, response: Response): Promise<void> {
   try {
-    const payload = await readJsonBody<WorkflowActionPayload>(request);
+    const workflowId = parseIntegerParam(request.params.workflowId);
+
+    if (Number.isNaN(workflowId)) {
+      response.status(404).json({ error: 'Workflow not found.' });
+      return;
+    }
+
+    const payload = (request.body ?? {}) as WorkflowActionPayload;
     const message = typeof payload.message === 'string' ? payload.message.trim() : '';
 
     if (!message) {
-      sendJson(response, 400, { error: 'message is required.' });
+      response.status(400).json({ error: 'message is required.' });
       return;
     }
 
     const result = await processWorkflowAction(workflowId, message);
-    sendJson(response, 201, result);
+    response.status(201).json(result);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to process workflow action.';
 
     if (message.includes('was not found')) {
-      sendJson(response, 404, { error: message });
+      response.status(404).json({ error: message });
       return;
     }
 
     console.error('Failed to process workflow action.', error);
-    sendJson(response, 500, { error: message });
+    response.status(500).json({ error: message });
   }
-}
-
-function readJsonBody<T>(request: IncomingMessage): Promise<T> {
-  return new Promise((resolve, reject) => {
-    let body = '';
-
-    request.setEncoding('utf8');
-    request.on('data', (chunk) => {
-      body += chunk;
-    });
-    request.on('end', () => {
-      try {
-        resolve(JSON.parse(body || '{}') as T);
-      } catch (error) {
-        reject(error);
-      }
-    });
-    request.on('error', reject);
-  });
-}
-
-function sendJson(response: ServerResponse, statusCode: number, payload: unknown): void {
-  response.statusCode = statusCode;
-  response.setHeader('Content-Type', 'application/json; charset=utf-8');
-  response.end(JSON.stringify(payload));
 }
