@@ -1,7 +1,6 @@
-import OpenAI from 'openai';
 import { z } from 'zod';
 import type { CandidateDoctorPayload } from '../team/candidates';
-import { loadEnvFile } from '../utils/env';
+import { OpenAIJsonResponseClient, type OpenAIJsonResponseClientOptions } from './openai-client';
 import type { RankedSkill } from './skills-ranking';
 import type { RoutingDecision } from './routing';
 
@@ -40,14 +39,9 @@ export type DoctorRankingClient = {
   rankDoctors(input: DoctorRankingClientInput): Promise<unknown>;
 };
 
-export type OpenAIDoctorRankingClientOptions = {
-  apiKey?: string;
-  model?: string;
-};
+export type OpenAIDoctorRankingClientOptions = OpenAIJsonResponseClientOptions;
 
 export const doctorAssignmentConfidenceThreshold = 0.7;
-
-const defaultOpenAIModel = 'gpt-4.1-mini';
 
 export const doctorRankingSystemPrompt = [
   'You rank candidate doctors for a clinical assignment.',
@@ -69,48 +63,24 @@ export const doctorRankingOutputSchema = {
 };
 
 export class OpenAIDoctorRankingClient implements DoctorRankingClient {
-  private readonly client: OpenAI;
-  private readonly model: string;
+  private readonly client: OpenAIJsonResponseClient;
 
   constructor(options: OpenAIDoctorRankingClientOptions = {}) {
-    loadEnvFile();
-
-    const apiKey = options.apiKey ?? process.env.OPENAI_API_KEY;
-
-    if (!apiKey) {
-      throw new Error('OPENAI_API_KEY is required in the environment or .env file.');
-    }
-
-    this.client = new OpenAI({ apiKey });
-    this.model = options.model ?? process.env.OPENAI_MODEL ?? defaultOpenAIModel;
+    this.client = new OpenAIJsonResponseClient(options);
   }
 
   async rankDoctors(input: DoctorRankingClientInput): Promise<unknown> {
-    const response = await this.client.responses.create({
-      model: this.model,
+    return this.client.createJsonObjectResponse({
       instructions: input.systemPrompt,
-      input: [
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'input_text',
-              text: JSON.stringify({
-                instruction: 'Return a JSON object matching the outputSchema.',
-                rawRequest: input.rawRequest,
-                routingDecision: input.routingDecision,
-                rankedSkills: input.rankedSkills,
-                candidateDoctors: input.candidateDoctors,
-                outputSchema: input.outputSchema,
-              }),
-            },
-          ],
-        },
-      ],
-      text: { format: { type: 'json_object' } },
+      payload: {
+        instruction: 'Return a JSON object matching the outputSchema.',
+        rawRequest: input.rawRequest,
+        routingDecision: input.routingDecision,
+        rankedSkills: input.rankedSkills,
+        candidateDoctors: input.candidateDoctors,
+        outputSchema: input.outputSchema,
+      },
     });
-
-    return JSON.parse(response.output_text);
   }
 }
 

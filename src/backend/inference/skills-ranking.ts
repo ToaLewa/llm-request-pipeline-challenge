@@ -1,8 +1,7 @@
-import OpenAI from 'openai';
 import { z } from 'zod';
 import type { RoutingDecision } from './routing';
-import { loadEnvFile } from '../utils/env';
 import type { AvailableSkill } from '../skills/skills.service';
+import { OpenAIJsonResponseClient, type OpenAIJsonResponseClientOptions } from './openai-client';
 
 const rankedSkillSchema = z.object({
   skillId: z.number().int().positive(),
@@ -36,12 +35,7 @@ export type SkillsRankingClient = {
   rankSkills(input: SkillsRankingClientInput): Promise<unknown>;
 };
 
-export type OpenAISkillsRankingClientOptions = {
-  apiKey?: string;
-  model?: string;
-};
-
-const defaultOpenAIModel = 'gpt-4.1-mini';
+export type OpenAISkillsRankingClientOptions = OpenAIJsonResponseClientOptions;
 
 export const skillsRankingSystemPrompt = [
   'You rank canonical database skills for clinical doctor assignment.',
@@ -60,47 +54,23 @@ export const skillsRankingOutputSchema = {
 };
 
 export class OpenAISkillsRankingClient implements SkillsRankingClient {
-  private readonly client: OpenAI;
-  private readonly model: string;
+  private readonly client: OpenAIJsonResponseClient;
 
   constructor(options: OpenAISkillsRankingClientOptions = {}) {
-    loadEnvFile();
-
-    const apiKey = options.apiKey ?? process.env.OPENAI_API_KEY;
-
-    if (!apiKey) {
-      throw new Error('OPENAI_API_KEY is required in the environment or .env file.');
-    }
-
-    this.client = new OpenAI({ apiKey });
-    this.model = options.model ?? process.env.OPENAI_MODEL ?? defaultOpenAIModel;
+    this.client = new OpenAIJsonResponseClient(options);
   }
 
   async rankSkills(input: SkillsRankingClientInput): Promise<unknown> {
-    const response = await this.client.responses.create({
-      model: this.model,
+    return this.client.createJsonObjectResponse({
       instructions: input.systemPrompt,
-      input: [
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'input_text',
-              text: JSON.stringify({
-                instruction: 'Return a JSON object matching the outputSchema.',
-                rawRequest: input.rawRequest,
-                routingDecision: input.routingDecision,
-                availableSkills: input.availableSkills,
-                outputSchema: input.outputSchema,
-              }),
-            },
-          ],
-        },
-      ],
-      text: { format: { type: 'json_object' } },
+      payload: {
+        instruction: 'Return a JSON object matching the outputSchema.',
+        rawRequest: input.rawRequest,
+        routingDecision: input.routingDecision,
+        availableSkills: input.availableSkills,
+        outputSchema: input.outputSchema,
+      },
     });
-
-    return JSON.parse(response.output_text);
   }
 }
 

@@ -1,6 +1,5 @@
-import OpenAI from 'openai';
 import { z } from 'zod';
-import { loadEnvFile } from '../utils/env';
+import { OpenAIJsonResponseClient, type OpenAIJsonResponseClientOptions } from './openai-client';
 
 const assignmentSummarySchema = z.object({
   summary: z.string().min(1),
@@ -31,12 +30,7 @@ export type AssignmentSummaryClient = {
   summarizeAssignment(input: AssignmentSummaryClientInput): Promise<unknown>;
 };
 
-export type OpenAIAssignmentSummaryClientOptions = {
-  apiKey?: string;
-  model?: string;
-};
-
-const defaultOpenAIModel = 'gpt-4.1-mini';
+export type OpenAIAssignmentSummaryClientOptions = OpenAIJsonResponseClientOptions;
 
 export const assignmentSummarySystemPrompt = [
   'You summarize a clinical assignment for the assigned doctor.',
@@ -51,47 +45,23 @@ export const assignmentSummaryOutputSchema = {
 };
 
 export class OpenAIAssignmentSummaryClient implements AssignmentSummaryClient {
-  private readonly client: OpenAI;
-  private readonly model: string;
+  private readonly client: OpenAIJsonResponseClient;
 
   constructor(options: OpenAIAssignmentSummaryClientOptions = {}) {
-    loadEnvFile();
-
-    const apiKey = options.apiKey ?? process.env.OPENAI_API_KEY;
-
-    if (!apiKey) {
-      throw new Error('OPENAI_API_KEY is required in the environment or .env file.');
-    }
-
-    this.client = new OpenAI({ apiKey });
-    this.model = options.model ?? process.env.OPENAI_MODEL ?? defaultOpenAIModel;
+    this.client = new OpenAIJsonResponseClient(options);
   }
 
   async summarizeAssignment(input: AssignmentSummaryClientInput): Promise<unknown> {
-    const response = await this.client.responses.create({
-      model: this.model,
+    return this.client.createJsonObjectResponse({
       instructions: input.systemPrompt,
-      input: [
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'input_text',
-              text: JSON.stringify({
-                instruction: 'Return a JSON object matching the outputSchema.',
-                rawRequest: input.rawRequest,
-                workflowContext: input.workflowContext,
-                assignedDoctor: input.assignedDoctor,
-                outputSchema: input.outputSchema,
-              }),
-            },
-          ],
-        },
-      ],
-      text: { format: { type: 'json_object' } },
+      payload: {
+        instruction: 'Return a JSON object matching the outputSchema.',
+        rawRequest: input.rawRequest,
+        workflowContext: input.workflowContext,
+        assignedDoctor: input.assignedDoctor,
+        outputSchema: input.outputSchema,
+      },
     });
-
-    return JSON.parse(response.output_text);
   }
 }
 

@@ -1,6 +1,5 @@
-import OpenAI from 'openai';
 import { z } from 'zod';
-import { loadEnvFile } from '../utils/env';
+import { OpenAIJsonResponseClient, type OpenAIJsonResponseClientOptions } from './openai-client';
 
 export const requestRoutes = [
   'doctor_assignment',
@@ -44,63 +43,30 @@ export type RoutingDecisionClient = {
   decideRoute(input: RoutingDecisionInput): Promise<unknown>;
 };
 
-export type OpenAIRoutingDecisionClientOptions = {
-  apiKey?: string;
-  model?: string;
-};
-
-const defaultOpenAIModel = 'gpt-4.1-mini';
+export type OpenAIRoutingDecisionClientOptions = OpenAIJsonResponseClientOptions;
 
 export class OpenAIRoutingDecisionClient implements RoutingDecisionClient {
-  private readonly client: OpenAI;
-  private readonly model: string;
+  private readonly client: OpenAIJsonResponseClient;
 
   constructor(options: OpenAIRoutingDecisionClientOptions = {}) {
-    loadEnvFile();
-
-    const apiKey = options.apiKey ?? process.env.OPENAI_API_KEY;
-
-    if (!apiKey) {
-      throw new Error('OPENAI_API_KEY is required in the environment or .env file.');
-    }
-
-    this.client = new OpenAI({ apiKey });
-    this.model = options.model ?? process.env.OPENAI_MODEL ?? defaultOpenAIModel;
+    this.client = new OpenAIJsonResponseClient(options);
   }
 
   async decideRoute(input: RoutingDecisionInput): Promise<unknown> {
-    const response = await this.client.responses.create({
-      model: this.model,
+    return this.client.createJsonObjectResponse({
       instructions: input.systemPrompt,
-      input: [
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'input_text',
-              text: JSON.stringify({
-                instruction: [
-                  'Return a JSON object matching the outputSchema.',
-                  `route must be exactly one of: ${requestRoutes.join(', ')}.`,
-                  `priority must be exactly one of: ${requestPriorities.join(', ')}.`,
-                  'Use route unknown when the request cannot be classified.',
-                  'Use priority normal unless the request clearly indicates low or urgent priority.',
-                ].join(' '),
-                rawRequest: input.rawRequest,
-                outputSchema: input.outputSchema,
-              }),
-            },
-          ],
-        },
-      ],
-      text: {
-        format: {
-          type: 'json_object',
-        },
+      payload: {
+        instruction: [
+          'Return a JSON object matching the outputSchema.',
+          `route must be exactly one of: ${requestRoutes.join(', ')}.`,
+          `priority must be exactly one of: ${requestPriorities.join(', ')}.`,
+          'Use route unknown when the request cannot be classified.',
+          'Use priority normal unless the request clearly indicates low or urgent priority.',
+        ].join(' '),
+        rawRequest: input.rawRequest,
+        outputSchema: input.outputSchema,
       },
     });
-
-    return JSON.parse(response.output_text);
   }
 }
 
