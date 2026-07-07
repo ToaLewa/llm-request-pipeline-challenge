@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { DoctorsPage } from './components/DoctorsPage';
+import { ClinicalTeamPage } from './components/ClinicalTeamPage';
 import { LandingPage } from './components/LandingPage';
 import { RequestsPage } from './components/RequestsPage';
 import { WorkflowDetailPage } from './components/WorkflowDetailPage';
@@ -91,7 +91,7 @@ function App() {
   }
 
   return route === '/clinical-team' ? (
-    <DoctorsPage clinicalTeamState={clinicalTeamState} onNavigate={setRoute} />
+    <ClinicalTeamPage clinicalTeamState={clinicalTeamState} onNavigate={setRoute} />
   ) : (
     <LandingPage onNavigate={setRoute} />
   );

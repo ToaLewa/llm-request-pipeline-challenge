@@ -1,18 +1,18 @@
 import type { AppRoute, ClinicalTeamState } from '../types';
-import { DoctorCard } from './DoctorCard';
+import { ClinicalTeamMemberCard } from './ClinicalTeamMemberCard';
 import { ClinicalTeamStatus } from './ClinicalTeamStatus';
 import { Navigation } from './Navigation';
 
-type DoctorsPageProps = {
+type ClinicalTeamPageProps = {
   clinicalTeamState: ClinicalTeamState;
   onNavigate: (route: AppRoute) => void;
 };
 
-export function DoctorsPage({ clinicalTeamState, onNavigate }: DoctorsPageProps) {
+export function ClinicalTeamPage({ clinicalTeamState, onNavigate }: ClinicalTeamPageProps) {
   const { doctors } = clinicalTeamState;
 
   return (
-    <section className="page-shell doctors-page">
+    <section className="page-shell clinical-team-page">
       <Navigation route="/clinical-team" onNavigate={onNavigate} />
       <header className="hero">
         <div className="hero-grid">
@@ -28,8 +28,8 @@ export function DoctorsPage({ clinicalTeamState, onNavigate }: DoctorsPageProps)
         </div>
       </header>
 
-      <section className="doctor-grid" aria-label="Doctors">
-        {doctors.length > 0 ? doctors.map((doctor) => <DoctorCard doctor={doctor} key={doctor.id} />) : <ClinicalTeamStatus clinicalTeamState={clinicalTeamState} />}
+      <section className="clinical-team-grid" aria-label="Clinical team members">
+        {doctors.length > 0 ? doctors.map((member) => <ClinicalTeamMemberCard member={member} key={member.id} />) : <ClinicalTeamStatus clinicalTeamState={clinicalTeamState} />}
       </section>
     </section>
   );

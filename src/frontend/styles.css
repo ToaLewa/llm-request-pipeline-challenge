@@ -34,7 +34,7 @@ body {
 }
 
 .landing-page,
-.doctors-page,
+.clinical-team-page,
 .requests-page,
 .workflows-page {
   display: grid;
@@ -499,7 +499,7 @@ p {
   line-height: 1.5;
 }
 
-.doctor-grid {
+.clinical-team-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
@@ -767,7 +767,7 @@ p {
   border-width: 0.22rem;
 }
 
-.doctor-card {
+.clinical-team-member-card {
   display: grid;
   gap: 1.15rem;
   padding: clamp(1.25rem, 3vw, 1.6rem);
@@ -777,11 +777,11 @@ p {
   box-shadow: 0 1.25rem 3rem rgba(15, 23, 42, 0.08);
 }
 
-.doctor-card.is-muted {
+.clinical-team-member-card.is-muted {
   background: rgba(255, 255, 255, 0.58);
 }
 
-.doctor-grid-message {
+.clinical-team-grid-message {
   grid-column: 1 / -1;
   padding: 1.25rem;
   border: 1px solid rgba(15, 23, 42, 0.08);
@@ -791,14 +791,14 @@ p {
   line-height: 1.6;
 }
 
-.doctor-card-header {
+.clinical-team-member-card-header {
   display: flex;
   gap: 1rem;
   align-items: flex-start;
   justify-content: space-between;
 }
 
-.doctor-role {
+.clinical-team-member-role {
   margin-bottom: 0.25rem;
   color: #64748b;
   font-size: 0.8rem;
@@ -831,7 +831,7 @@ h2 {
   background: #ffedd5;
 }
 
-.doctor-description {
+.clinical-team-member-description {
   color: #475569;
   line-height: 1.6;
 }
@@ -882,7 +882,7 @@ h3 {
 @media (max-width: 920px) {
   .hero-grid,
   .feature-grid,
-  .doctor-grid,
+  .clinical-team-grid,
   .routing-result dl {
     grid-template-columns: 1fr;
   }
@@ -893,7 +893,7 @@ h3 {
     padding: 1.25rem;
   }
 
-  .doctor-card-header {
+  .clinical-team-member-card-header {
     display: grid;
   }
 
