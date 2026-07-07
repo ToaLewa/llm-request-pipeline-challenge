@@ -1,4 +1,4 @@
-import { useEffect, useState, type MouseEvent } from 'react';
+import { useEffect, useState, type FormEvent, type MouseEvent } from 'react';
 import { formatLabel } from '../format';
 import type { AppRoute, WorkflowDetail, WorkflowDetailState, WorkflowTaskSummary } from '../types';
 import { Navigation } from './Navigation';
@@ -10,6 +10,7 @@ type WorkflowDetailPageProps = {
 
 export function WorkflowDetailPage({ workflowId, onNavigate }: WorkflowDetailPageProps) {
   const [workflowState, setWorkflowState] = useState<WorkflowDetailState>({ status: 'loading' });
+  const [taskDraft, setTaskDraft] = useState('');
 
   useEffect(() => {
     let ignore = false;
@@ -53,6 +54,10 @@ export function WorkflowDetailPage({ workflowId, onNavigate }: WorkflowDetailPag
     onNavigate('/workflows');
   }
 
+  function handleTaskDraftSubmit(event: FormEvent<HTMLFormElement>): void {
+    event.preventDefault();
+  }
+
   return (
     <section className="page-shell workflows-page">
       <Navigation route="/workflows" onNavigate={onNavigate} />
@@ -76,6 +81,33 @@ export function WorkflowDetailPage({ workflowId, onNavigate }: WorkflowDetailPag
           ) : null}
         </div>
       </header>
+
+      <details className="workflow-chat-panel">
+        <summary className="workflow-chat-summary">
+          <span>
+            <span className="eyebrow">Task Chat</span>
+            <span className="workflow-chat-title">Create a follow-up task</span>
+          </span>
+          <span className="workflow-chat-toggle">Expand</span>
+        </summary>
+        <div className="workflow-chat-content">
+          <p>Draft the next instruction for this workflow. Task creation will be connected here next.</p>
+          <form className="workflow-chat-composer" onSubmit={handleTaskDraftSubmit}>
+            <label className="sr-only" htmlFor="workflow-task-draft">Task instruction</label>
+            <textarea
+              id="workflow-task-draft"
+              value={taskDraft}
+              onChange={(event) => setTaskDraft(event.target.value)}
+              placeholder="Ask for a new task, clarification, or follow-up action for this workflow..."
+              rows={4}
+            />
+            <div className="composer-actions">
+              <span>{taskDraft.trim().length} characters drafted</span>
+              <button type="submit" disabled>Create task soon</button>
+            </div>
+          </form>
+        </div>
+      </details>
 
       <section className="workflow-table-shell" aria-label="Workflow tasks">
         <table className="workflow-table workflow-task-table">

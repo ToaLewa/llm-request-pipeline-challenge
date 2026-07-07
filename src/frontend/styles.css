@@ -628,6 +628,98 @@ p {
   width: 15rem;
 }
 
+.workflow-chat-panel {
+  display: grid;
+  padding: clamp(1.25rem, 3vw, 1.6rem);
+  border: 1px solid rgba(15, 118, 110, 0.16);
+  border-radius: 1.5rem;
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: 0 1.5rem 4rem rgba(15, 23, 42, 0.08);
+}
+
+.workflow-chat-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.workflow-chat-summary::-webkit-details-marker {
+  display: none;
+}
+
+.workflow-chat-summary > span:first-child {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.workflow-chat-title {
+  color: #10201d;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.workflow-chat-toggle {
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  color: #0f766e;
+  background: #ecfdf5;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.workflow-chat-panel[open] .workflow-chat-toggle::before {
+  content: "Collapse";
+}
+
+.workflow-chat-panel[open] .workflow-chat-toggle {
+  font-size: 0;
+}
+
+.workflow-chat-panel[open] .workflow-chat-toggle::before {
+  font-size: 0.82rem;
+}
+
+.workflow-chat-content {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.workflow-chat-content > p {
+  max-width: 44rem;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.workflow-chat-composer {
+  display: grid;
+  gap: 1rem;
+}
+
+.workflow-chat-composer textarea {
+  width: 100%;
+  min-height: 9rem;
+  resize: vertical;
+  padding: 1rem;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 1.25rem;
+  color: #10201d;
+  background: #ffffff;
+  font: inherit;
+  line-height: 1.6;
+  outline: none;
+  box-shadow: inset 0 0 0 1px transparent;
+}
+
+.workflow-chat-composer textarea:focus {
+  border-color: rgba(15, 118, 110, 0.5);
+  box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
+}
+
 .doctor-card {
   display: grid;
   gap: 1.15rem;
