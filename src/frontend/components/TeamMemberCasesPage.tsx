@@ -50,7 +50,7 @@ export function TeamMemberCasesPage({ teamMemberId, onNavigate }: TeamMemberCase
         <a className="workflow-back-link" href="/clinical-team" onClick={handleBackClick}>Back to clinical team</a>
         <div className="hero-grid">
           <div>
-            <h1>{teamMemberName}</h1>
+            <h2>{teamMemberName}</h2>
             <p className="intro">Assigned cases for this clinical team member, including workflow context and current task status.</p>
           </div>
           <aside className="summary-card" aria-label="Assigned cases summary">
