@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import { z } from 'zod';
-import type { CandidateDoctorPayload } from '../doctors/candidates';
+import type { CandidateDoctorPayload } from '../team/candidates';
 import { loadEnvFile } from '../utils/env';
 
 export const workflowActionTypes = [

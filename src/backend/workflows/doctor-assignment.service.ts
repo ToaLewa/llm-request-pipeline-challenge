@@ -1,4 +1,4 @@
-import { findCandidateDoctorsBySkillCodes, type CandidateDoctorPayload } from '../doctors/candidates';
+import { findCandidateDoctorsBySkillCodes, type CandidateDoctorPayload } from '../team/candidates';
 import {
   createAssignmentSummary,
   createOpenAIAssignmentSummaryClient,

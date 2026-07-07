@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { CandidateDoctorPayload } from '../doctors/candidates';
+import type { CandidateDoctorPayload } from '../team/candidates';
 import type { AssignmentSummaryClient } from '../inference/assignment-summary';
 import type { DoctorRankingClient } from '../inference/doctor-ranking';
 import type { RoutingDecision } from '../inference/routing';

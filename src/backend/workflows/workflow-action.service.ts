@@ -1,4 +1,4 @@
-import { findCandidateDoctorsByName, type CandidateDoctorPayload } from '../doctors/candidates';
+import { findCandidateDoctorsByName, type CandidateDoctorPayload } from '../team/candidates';
 import { getPrisma } from '../database/client';
 import {
   createDoctorReassignmentSelection,

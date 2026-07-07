@@ -1,5 +1,5 @@
 import express, { type ErrorRequestHandler, type RequestHandler } from 'express';
-import { getClinicalTeamController, getTeamMemberCasesController } from './doctors/clinical-team.controller';
+import { getClinicalTeamController, getTeamMemberCasesController } from './team/clinical-team.controller';
 import { createRequestController } from './requests/request.controller';
 import { createWorkflowActionController, getWorkflowController, getWorkflowsController } from './workflows/workflow.controller';
 

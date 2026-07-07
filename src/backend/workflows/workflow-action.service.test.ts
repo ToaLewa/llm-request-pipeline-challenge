@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { CandidateDoctorPayload } from '../doctors/candidates';
+import type { CandidateDoctorPayload } from '../team/candidates';
 import type { DoctorReassignmentSelectionClient, WorkflowActionClient } from '../inference/workflow-action';
 import { processWorkflowAction, type WorkflowActionServiceClient } from './workflow-action.service';
 
