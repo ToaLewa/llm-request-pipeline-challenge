@@ -57,7 +57,7 @@ type WorkflowTaskCreateData = {
 };
 
 type AssignmentCreateData = {
-  doctorId: number;
+  teamMemberId: number;
   workflowTaskId: number;
   summary: string;
 };
@@ -269,7 +269,7 @@ export async function processDoctorAssignmentWorkflow(
     if (assignmentSummary && finalAssignment.output.assignedDoctorId !== null) {
       await tx.assignment.create({
         data: {
-          doctorId: finalAssignment.output.assignedDoctorId,
+          teamMemberId: finalAssignment.output.assignedDoctorId,
           workflowTaskId: doctorAssignmentTask.id,
           summary: assignmentSummary.summary,
         },

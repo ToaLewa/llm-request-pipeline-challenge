@@ -98,17 +98,17 @@ model WorkflowTask {
 
 model Assignment {
   id             Int          @id @default(autoincrement())
-  doctorId       Int
+  teamMemberId   Int
   workflowTaskId Int          @unique
   summary        String
 
-  doctor         TeamMember   @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+  teamMember     TeamMember   @relation(fields: [teamMemberId], references: [id], onDelete: Restrict)
   workflowTask   WorkflowTask @relation(fields: [workflowTaskId], references: [id], onDelete: Cascade)
 
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
-  @@index([doctorId])
+  @@index([teamMemberId])
 }
 
 enum SkillCategory {

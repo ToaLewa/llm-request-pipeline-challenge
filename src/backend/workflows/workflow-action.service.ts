@@ -50,7 +50,7 @@ type WorkflowActionTransactionClient = {
     create(args: { data: WorkflowTaskCreateData }): Promise<WorkflowTaskRecord>;
   };
   assignment: {
-    create(args: { data: { doctorId: number; workflowTaskId: number; summary: string } }): Promise<{ id: number }>;
+    create(args: { data: { teamMemberId: number; workflowTaskId: number; summary: string } }): Promise<{ id: number }>;
   };
   workflow: {
     update(args: { where: { id: number }; data: { status: string } }): Promise<{ id: number; status: string }>;
@@ -297,7 +297,7 @@ async function processDoctorReassignment(args: {
 
     await tx.assignment.create({
       data: {
-        doctorId: assignedDoctor.id,
+        teamMemberId: assignedDoctor.id,
         workflowTaskId: reassignmentTask.id,
         summary: buildReassignmentSummary(assignedDoctor.name, previousAssignment, selection.reason),
       },

@@ -95,7 +95,7 @@ describe('processDoctorAssignmentWorkflow', () => {
     expect(createdTasks[createdTasks.length - 1]?.status).toBe('completed');
     expect(createdAssignments).toEqual([
       {
-        doctorId: 7,
+        teamMemberId: 7,
         workflowTaskId: 4,
         summary: 'Review the renal biopsy for lupus nephritis.',
       },
@@ -189,12 +189,12 @@ describe('processDoctorAssignmentWorkflow', () => {
 
 function createWorkflowClient(routingDecision: RoutingDecision): {
   client: DoctorAssignmentWorkflowClient;
-  createdAssignments: Array<{ doctorId: number; workflowTaskId: number; summary: string }>;
+  createdAssignments: Array<{ teamMemberId: number; workflowTaskId: number; summary: string }>;
   createdTasks: Array<{ id: number; taskType: string; sequence: number; status: string }>;
   workflowTaskCreate: ReturnType<typeof vi.fn>;
   workflowUpdate: ReturnType<typeof vi.fn>;
 } {
-  const createdAssignments: Array<{ doctorId: number; workflowTaskId: number; summary: string }> = [];
+  const createdAssignments: Array<{ teamMemberId: number; workflowTaskId: number; summary: string }> = [];
   const createdTasks: Array<{ id: number; taskType: string; sequence: number; status: string }> = [];
   const workflowTaskCreate = vi.fn(async (args: { data: { taskType: string; sequence: number; status: string } }) => {
     const task = { id: createdTasks.length + 2, requestId: 1, input: null, output: null, reason: null, ...args.data };
@@ -202,7 +202,7 @@ function createWorkflowClient(routingDecision: RoutingDecision): {
 
     return task;
   });
-  const assignmentCreate = vi.fn(async (args: { data: { doctorId: number; workflowTaskId: number; summary: string } }) => {
+  const assignmentCreate = vi.fn(async (args: { data: { teamMemberId: number; workflowTaskId: number; summary: string } }) => {
     createdAssignments.push(args.data);
 
     return { id: createdAssignments.length };
