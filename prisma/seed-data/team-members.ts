@@ -1,6 +1,6 @@
 import { date } from './utils.ts';
 
-export const doctors = [
+export const teamMembers = [
   {
     "id": 1,
     "name": "Dr. Emily Chen",

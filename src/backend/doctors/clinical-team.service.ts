@@ -32,7 +32,7 @@ export type ClinicalTeamDoctor = {
 };
 
 export type ClinicalTeamQueryClient = {
-  doctor: {
+  teamMember: {
     findMany(args: {
       include: {
         skills: {
@@ -52,7 +52,7 @@ export type GetClinicalTeamOptions = {
 
 export async function getClinicalTeam(options: GetClinicalTeamOptions = {}): Promise<ClinicalTeamDoctor[]> {
   const client: ClinicalTeamQueryClient = options.client ?? getPrisma();
-  const doctors = await client.doctor.findMany({
+  const doctors = await client.teamMember.findMany({
     include: {
       skills: {
         include: {

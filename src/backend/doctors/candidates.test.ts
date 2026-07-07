@@ -41,7 +41,7 @@ describe('skillCodesFromRoutingDecision', () => {
 
 describe('findCandidateDoctors', () => {
   it('queries active available doctors through normalized doctor-skill rows', async () => {
-    const findMany = vi.fn<CandidateDoctorQueryClient['doctor']['findMany']>().mockResolvedValue([
+    const findMany = vi.fn<CandidateDoctorQueryClient['teamMember']['findMany']>().mockResolvedValue([
       {
         id: 1,
         name: 'Dr. Emily Chen',
@@ -58,7 +58,7 @@ describe('findCandidateDoctors', () => {
     ]);
 
     const candidates = await findCandidateDoctors(routingDecision, {
-      client: { doctor: { findMany } },
+      client: { teamMember: { findMany } },
     });
 
     expect(findMany).toHaveBeenCalledWith({
@@ -99,7 +99,7 @@ describe('findCandidateDoctors', () => {
   });
 
   it('sorts by skill overlap before using current load as a tie-breaker', async () => {
-    const findMany = vi.fn<CandidateDoctorQueryClient['doctor']['findMany']>().mockResolvedValue([
+    const findMany = vi.fn<CandidateDoctorQueryClient['teamMember']['findMany']>().mockResolvedValue([
       {
         id: 2,
         name: 'Dr. Ravi Patel',
@@ -125,14 +125,14 @@ describe('findCandidateDoctors', () => {
     ]);
 
     const candidates = await findCandidateDoctors(routingDecision, {
-      client: { doctor: { findMany } },
+      client: { teamMember: { findMany } },
     });
 
     expect(candidates.map((candidate) => candidate.id)).toEqual([1, 2]);
   });
 
   it('does not query doctors when routing produced no searchable skills', async () => {
-    const findMany = vi.fn<CandidateDoctorQueryClient['doctor']['findMany']>();
+    const findMany = vi.fn<CandidateDoctorQueryClient['teamMember']['findMany']>();
 
     const candidates = await findCandidateDoctors(
       {
@@ -141,7 +141,7 @@ describe('findCandidateDoctors', () => {
         requiredSpecialties: [],
         requiredSkills: [],
       },
-      { client: { doctor: { findMany } } },
+      { client: { teamMember: { findMany } } },
     );
 
     expect(candidates).toEqual([]);
@@ -151,7 +151,7 @@ describe('findCandidateDoctors', () => {
 
 describe('findCandidateDoctorsBySkillCodes', () => {
   it('searches doctors by explicit ranked skill codes', async () => {
-    const findMany = vi.fn<CandidateDoctorQueryClient['doctor']['findMany']>().mockResolvedValue([
+    const findMany = vi.fn<CandidateDoctorQueryClient['teamMember']['findMany']>().mockResolvedValue([
       {
         id: 1,
         name: 'Dr. Emily Chen',
@@ -164,7 +164,7 @@ describe('findCandidateDoctorsBySkillCodes', () => {
     ]);
 
     const candidates = await findCandidateDoctorsBySkillCodes(['renal-pathology', 'renal-pathology'], {
-      client: { doctor: { findMany } },
+      client: { teamMember: { findMany } },
     });
 
     expect(findMany).toHaveBeenCalledWith(expect.objectContaining({
@@ -178,16 +178,16 @@ describe('findCandidateDoctorsBySkillCodes', () => {
   });
 
   it('returns an empty list when no ranked skill codes are provided', async () => {
-    const findMany = vi.fn<CandidateDoctorQueryClient['doctor']['findMany']>();
+    const findMany = vi.fn<CandidateDoctorQueryClient['teamMember']['findMany']>();
 
-    await expect(findCandidateDoctorsBySkillCodes([' ', ''], { client: { doctor: { findMany } } })).resolves.toEqual([]);
+    await expect(findCandidateDoctorsBySkillCodes([' ', ''], { client: { teamMember: { findMany } } })).resolves.toEqual([]);
     expect(findMany).not.toHaveBeenCalled();
   });
 });
 
 describe('findCandidateDoctorsByName', () => {
   it('searches active available doctors by case-insensitive name', async () => {
-    const findMany = vi.fn<CandidateDoctorByNameQueryClient['doctor']['findMany']>().mockResolvedValue([
+    const findMany = vi.fn<CandidateDoctorByNameQueryClient['teamMember']['findMany']>().mockResolvedValue([
       {
         id: 1,
         name: 'Dr. Emily Chen',
@@ -200,7 +200,7 @@ describe('findCandidateDoctorsByName', () => {
     ]);
 
     const candidates = await findCandidateDoctorsByName('Emily Chen', {
-      client: { doctor: { findMany } },
+      client: { teamMember: { findMany } },
     });
 
     expect(findMany).toHaveBeenCalledWith({
@@ -226,9 +226,9 @@ describe('findCandidateDoctorsByName', () => {
   });
 
   it('does not query doctors without a name', async () => {
-    const findMany = vi.fn<CandidateDoctorByNameQueryClient['doctor']['findMany']>();
+    const findMany = vi.fn<CandidateDoctorByNameQueryClient['teamMember']['findMany']>();
 
-    await expect(findCandidateDoctorsByName(' ', { client: { doctor: { findMany } } })).resolves.toEqual([]);
+    await expect(findCandidateDoctorsByName(' ', { client: { teamMember: { findMany } } })).resolves.toEqual([]);
     expect(findMany).not.toHaveBeenCalled();
   });
 });

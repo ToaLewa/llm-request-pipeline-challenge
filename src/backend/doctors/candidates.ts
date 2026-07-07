@@ -33,7 +33,7 @@ export type CandidateDoctorPayload = {
 };
 
 export type CandidateDoctorQueryClient = {
-  doctor: {
+  teamMember: {
     findMany(args: {
       where: {
         active: true;
@@ -61,7 +61,7 @@ export type CandidateDoctorQueryClient = {
 };
 
 export type CandidateDoctorByNameQueryClient = {
-  doctor: {
+  teamMember: {
     findMany(args: {
       where: {
         active: true;
@@ -130,7 +130,7 @@ export async function findCandidateDoctorsBySkillCodes(
   const limit = options.limit ?? 8;
   const requiredSkillCodeSet = new Set(requiredSkillCodes);
 
-  const candidates = await client.doctor.findMany({
+  const candidates = await client.teamMember.findMany({
     where: {
       active: true,
       ptoStatus: false,
@@ -175,7 +175,7 @@ export async function findCandidateDoctorsByName(
   }
 
   const client: CandidateDoctorByNameQueryClient = options.client ?? getPrisma();
-  const candidates = await client.doctor.findMany({
+  const candidates = await client.teamMember.findMany({
     where: {
       active: true,
       ptoStatus: false,

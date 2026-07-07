@@ -7,7 +7,7 @@ datasource db {
   provider = "postgresql"
 }
 
-model Doctor {
+model TeamMember {
   id          Int           @id @default(autoincrement())
   name        String
   description String
@@ -15,7 +15,7 @@ model Doctor {
   currentLoad Int           @default(0)
   active      Boolean       @default(true)
 
-  skills      DoctorSkill[]
+  skills      TeamMemberSkill[]
   assignments Assignment[]
 
   createdAt   DateTime      @default(now())
@@ -28,20 +28,20 @@ model Skill {
   skillCode String        @unique
   category  SkillCategory @default(clinical_skill)
 
-  doctors   DoctorSkill[]
+  teamMembers TeamMemberSkill[]
 
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 }
 
-model DoctorSkill {
-  doctorId Int
-  skillId  Int
+model TeamMemberSkill {
+  teamMemberId Int
+  skillId      Int
 
-  doctor   Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
-  skill    Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  teamMember TeamMember @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
+  skill      Skill      @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
-  @@id([doctorId, skillId])
+  @@id([teamMemberId, skillId])
   @@index([skillId])
 }
 
@@ -102,7 +102,7 @@ model Assignment {
   workflowTaskId Int          @unique
   summary        String
 
-  doctor         Doctor       @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+  doctor         TeamMember   @relation(fields: [doctorId], references: [id], onDelete: Restrict)
   workflowTask   WorkflowTask @relation(fields: [workflowTaskId], references: [id], onDelete: Cascade)
 
   createdAt      DateTime     @default(now())

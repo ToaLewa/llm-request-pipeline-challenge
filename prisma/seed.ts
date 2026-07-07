@@ -2,8 +2,8 @@ import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../src/generated/prisma/client';
 import { assignments } from './seed-data/assignments.ts';
-import { doctorSkills } from './seed-data/doctor-skills.ts';
-import { doctors } from './seed-data/doctors.ts';
+import { teamMemberSkills } from './seed-data/team-member-skills.ts';
+import { teamMembers } from './seed-data/team-members.ts';
 import { skills } from './seed-data/skills.ts';
 import { workflowRequests } from './seed-data/workflow-requests.ts';
 import { workflowTasks } from './seed-data/workflow-tasks.ts';
@@ -28,20 +28,20 @@ async function main(): Promise<void> {
   await prisma.workflowTask.deleteMany();
   await prisma.workflowRequest.deleteMany();
   await prisma.workflow.deleteMany();
-  await prisma.doctorSkill.deleteMany();
-  await prisma.doctor.deleteMany();
+  await prisma.teamMemberSkill.deleteMany();
+  await prisma.teamMember.deleteMany();
   await prisma.skill.deleteMany();
 
   await prisma.skill.createMany({ data: skills });
-  await prisma.doctor.createMany({ data: doctors });
-  await prisma.doctorSkill.createMany({ data: doctorSkills });
+  await prisma.teamMember.createMany({ data: teamMembers });
+  await prisma.teamMemberSkill.createMany({ data: teamMemberSkills });
   await prisma.workflow.createMany({ data: workflows });
   await prisma.workflowRequest.createMany({ data: workflowRequests });
   await prisma.workflowTask.createMany({ data: workflowTasks });
   await prisma.assignment.createMany({ data: assignments });
 
   await resetSequence('Skill', Math.max(...skills.map((skill) => skill.id)));
-  await resetSequence('Doctor', Math.max(...doctors.map((doctor) => doctor.id)));
+  await resetSequence('TeamMember', Math.max(...teamMembers.map((teamMember) => teamMember.id)));
   await resetSequence('Workflow', Math.max(...workflows.map((workflow) => workflow.id)));
   await resetSequence('WorkflowRequest', Math.max(...workflowRequests.map((request) => request.id)));
   await resetSequence('WorkflowTask', Math.max(...workflowTasks.map((task) => task.id)));

@@ -3,7 +3,7 @@ import { getClinicalTeam, type ClinicalTeamQueryClient } from './clinical-team.s
 
 describe('getClinicalTeam', () => {
   it('loads doctors with normalized skill rows and groups display values by category', async () => {
-    const findMany = vi.fn<ClinicalTeamQueryClient['doctor']['findMany']>().mockResolvedValue([
+    const findMany = vi.fn<ClinicalTeamQueryClient['teamMember']['findMany']>().mockResolvedValue([
       {
         id: 1,
         name: 'Dr. Emily Chen',
@@ -19,7 +19,7 @@ describe('getClinicalTeam', () => {
       },
     ]);
 
-    const doctors = await getClinicalTeam({ client: { doctor: { findMany } } });
+    const doctors = await getClinicalTeam({ client: { teamMember: { findMany } } });
 
     expect(findMany).toHaveBeenCalledWith({
       include: {
