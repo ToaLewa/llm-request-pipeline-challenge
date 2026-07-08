@@ -1,6 +1,6 @@
 # LLM Request Pipeline Challenge
 
-LLM Request Pipeline Challenge is a TypeScript application that triages incoming clinical requests, creates workflow tasks, and assigns work to doctors based on specialty, skills, availability, and current workload.
+LLM Request Pipeline Challenge is a TypeScript application that evaluates incoming clinical requests, creates workflow tasks, and assigns work to clinical team members based on specialty, skills, availability, and current workload.
 
 The app provides a React frontend for submitting requests and reviewing workflows, an Express backend API for orchestration, and a PostgreSQL database managed by Prisma. OpenAI-backed inference can be enabled for request routing, workflow action selection, skills ranking, doctor ranking, and assignment summaries.
 
@@ -64,7 +64,7 @@ Open http://localhost:5173.
 
 ## Build
 
-Install dependencies first if needed:
+Install dependencies first:
 
 ```sh
 npm install
