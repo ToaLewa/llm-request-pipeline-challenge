@@ -32,6 +32,7 @@ import {
   type SkillsRankingClient,
 } from '../inference/skills-ranking';
 import { listAvailableSkills, type AvailableSkill } from '../skills/skills.service';
+import { createHumanReviewTask } from './human-review.service';
 
 export type { DoctorAssignmentWorkflowClient } from '../database/doctor-assignment.queries';
 
@@ -104,7 +105,7 @@ export async function processDoctorAssignmentWorkflow(
   }
 
   if (skillsRankingResult.ranking.rankedSkills.length === 0) {
-    await markDoctorAssignmentWorkflowUnassignable({
+    const doctorAssignmentTask = await markDoctorAssignmentWorkflowUnassignable({
       client,
       workflowId,
       requestId: request.id,
@@ -114,6 +115,13 @@ export async function processDoctorAssignmentWorkflow(
       candidateDoctors: [],
       reason: 'No canonical skills were relevant to the request.',
     });
+    await createDoctorAssignmentHumanReviewTask({
+      client,
+      workflowId,
+      requestId: request.id,
+      doctorAssignmentTask,
+      reason: 'No canonical skills were relevant to the request.',
+    });
     return { status: 'unassignable', workflowId };
   }
 
@@ -121,7 +129,8 @@ export async function processDoctorAssignmentWorkflow(
   const candidateDoctors = await (options.findCandidateDoctors ?? ((codes) => findCandidateDoctorsBySkillCodes(codes)))(skillCodes);
 
   if (candidateDoctors.length === 0) {
-    await markDoctorAssignmentWorkflowUnassignable({
+    const reason = 'No active available doctors matched the ranked canonical skills.';
+    const doctorAssignmentTask = await markDoctorAssignmentWorkflowUnassignable({
       client,
       workflowId,
       requestId: request.id,
@@ -129,7 +138,14 @@ export async function processDoctorAssignmentWorkflow(
       routingDecision,
       rankedSkills: skillsRankingResult.ranking.rankedSkills,
       candidateDoctors,
-      reason: 'No active available doctors matched the ranked canonical skills.',
+      reason,
+    });
+    await createDoctorAssignmentHumanReviewTask({
+      client,
+      workflowId,
+      requestId: request.id,
+      doctorAssignmentTask,
+      reason,
     });
     return { status: 'unassignable', workflowId };
   }
@@ -192,7 +208,7 @@ export async function processDoctorAssignmentWorkflow(
     )
     : null;
 
-  await completeDoctorAssignmentWorkflow({
+  const doctorAssignmentTask = await completeDoctorAssignmentWorkflow({
     client,
     workflowId,
     requestId: request.id,
@@ -206,7 +222,35 @@ export async function processDoctorAssignmentWorkflow(
     assignedDoctorId: finalAssignment.output.assignedDoctorId,
   });
 
+  if (finalAssignment.status === 'unassignable') {
+    await createDoctorAssignmentHumanReviewTask({
+      client,
+      workflowId,
+      requestId: request.id,
+      doctorAssignmentTask,
+      reason: finalAssignment.reason ?? 'Doctor assignment failed and requires human review.',
+    });
+  }
+
   return { status: workflowStatus, workflowId };
+}
+
+async function createDoctorAssignmentHumanReviewTask(args: {
+  client?: DoctorAssignmentWorkflowClient;
+  workflowId: number;
+  requestId: number;
+  doctorAssignmentTask: WorkflowTaskRecord;
+  reason: string;
+}): Promise<void> {
+  await createHumanReviewTask({
+    client: args.client,
+    workflowId: args.workflowId,
+    requestId: args.requestId,
+    sequence: 5,
+    failedTask: args.doctorAssignmentTask,
+    failureContext: { doctorAssignmentStatus: args.doctorAssignmentTask.status },
+    reason: args.reason,
+  });
 }
 
 function buildAssignmentSummaryContext(

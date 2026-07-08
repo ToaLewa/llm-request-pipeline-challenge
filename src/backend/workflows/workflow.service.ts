@@ -4,6 +4,7 @@ import {
   type InitialWorkflowResult,
 } from '../database/initial-workflow.queries';
 import type { RoutingDecision } from '../inference/routing';
+import { createHumanReviewTask } from './human-review.service';
 
 export type { InitialWorkflowClient, InitialWorkflowResult } from '../database/initial-workflow.queries';
 
@@ -25,10 +26,28 @@ export async function createInitialWorkflow(
 
   const source = options.source ?? 'user';
 
-  return createInitialWorkflowRecords({
+  const workflow = await createInitialWorkflowRecords({
     client: options.client,
     rawRequest: normalizedRequest,
     routingDecision,
     source,
   });
+
+  if (routingDecision.route === 'unknown_human_review') {
+    await createHumanReviewTask({
+      client: options.client,
+      workflowId: workflow.workflowId,
+      requestId: workflow.requestId,
+      sequence: 2,
+      failedTask: {
+        id: workflow.taskId,
+        taskType: 'routing_decision',
+        status: 'completed',
+      },
+      failureContext: { routingRoute: routingDecision.route },
+      reason: routingDecision.reason,
+    });
+  }
+
+  return workflow;
 }

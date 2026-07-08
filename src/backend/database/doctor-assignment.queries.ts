@@ -1,36 +1,17 @@
 import { getPrisma } from './client';
+import type { WorkflowTaskCreateData, WorkflowTaskRecord } from './workflow-task.queries';
+
+export type { WorkflowTaskCreateData, WorkflowTaskRecord } from './workflow-task.queries';
 
 export type WorkflowRequestRecord = {
   id: number;
   rawRequest: string;
 };
 
-export type WorkflowTaskRecord = {
-  id: number;
-  requestId: number | null;
-  taskType: string;
-  sequence: number;
-  status: string;
-  input: unknown;
-  output: unknown;
-  reason: string | null;
-};
-
 export type WorkflowRecord = {
   id: number;
   requests: WorkflowRequestRecord[];
   tasks: WorkflowTaskRecord[];
-};
-
-export type WorkflowTaskCreateData = {
-  workflowId: number;
-  requestId?: number | null;
-  taskType: string;
-  sequence: number;
-  status: string;
-  input: unknown;
-  output: unknown;
-  reason: string | null;
 };
 
 type AssignmentCreateData = {
@@ -178,10 +159,10 @@ export async function createDoctorRankingTask(args: CreateDoctorRankingTaskArgs)
   }));
 }
 
-export async function completeDoctorAssignmentWorkflow(args: CompleteDoctorAssignmentWorkflowArgs): Promise<void> {
+export async function completeDoctorAssignmentWorkflow(args: CompleteDoctorAssignmentWorkflowArgs): Promise<WorkflowTaskRecord> {
   const client = args.client ?? defaultDoctorAssignmentWorkflowClient();
 
-  await client.$transaction(async (tx) => {
+  return client.$transaction(async (tx) => {
     const doctorAssignmentTask = await tx.workflowTask.create({
       data: {
         workflowId: args.workflowId,
@@ -208,36 +189,16 @@ export async function completeDoctorAssignmentWorkflow(args: CompleteDoctorAssig
       });
     }
 
-    if (args.finalAssignmentStatus === 'unassignable') {
-      await tx.workflowTask.create({
-        data: {
-          workflowId: args.workflowId,
-          requestId: args.requestId,
-          taskType: 'unknown_human_review',
-          sequence: 5,
-          status: 'required',
-          input: {
-            failedTaskId: doctorAssignmentTask.id,
-            failedTaskType: doctorAssignmentTask.taskType,
-            doctorAssignmentStatus: args.finalAssignmentStatus,
-          },
-          output: {
-            route: 'unknown_human_review',
-            reason: args.finalAssignmentReason ?? 'Doctor assignment failed and requires human review.',
-          },
-          reason: args.finalAssignmentReason ?? 'Doctor assignment failed and requires human review.',
-        },
-      });
-    }
-
     await tx.workflow.update({ where: { id: args.workflowId }, data: { status: args.workflowStatus } });
+
+    return doctorAssignmentTask;
   });
 }
 
-export async function markDoctorAssignmentWorkflowUnassignable(args: MarkDoctorAssignmentWorkflowUnassignableArgs): Promise<void> {
+export async function markDoctorAssignmentWorkflowUnassignable(args: MarkDoctorAssignmentWorkflowUnassignableArgs): Promise<WorkflowTaskRecord> {
   const client = args.client ?? defaultDoctorAssignmentWorkflowClient();
 
-  await client.$transaction(async (tx) => {
+  return client.$transaction(async (tx) => {
     const doctorRankingTask = await tx.workflowTask.create({
       data: {
         workflowId: args.workflowId,
@@ -285,27 +246,9 @@ export async function markDoctorAssignmentWorkflowUnassignable(args: MarkDoctorA
       },
     });
 
-    await tx.workflowTask.create({
-      data: {
-        workflowId: args.workflowId,
-        requestId: args.requestId,
-        taskType: 'unknown_human_review',
-        sequence: 5,
-        status: 'required',
-        input: {
-          failedTaskId: doctorAssignmentTask.id,
-          failedTaskType: doctorAssignmentTask.taskType,
-          doctorAssignmentStatus: doctorAssignmentTask.status,
-        },
-        output: {
-          route: 'unknown_human_review',
-          reason: args.reason,
-        },
-        reason: args.reason,
-      },
-    });
-
     await tx.workflow.update({ where: { id: args.workflowId }, data: { status: 'unassignable' } });
+
+    return doctorAssignmentTask;
   });
 }
 
