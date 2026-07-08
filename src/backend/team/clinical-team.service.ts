@@ -74,7 +74,7 @@ function toClinicalTeamMember(teamMember: ClinicalTeamRecord): ClinicalTeamMembe
     caseTypes: skillNamesForCategory(teamMember, 'case_type'),
     description: teamMember.description,
     ptoStatus: teamMember.ptoStatus,
-    currentLoad: teamMember.currentLoad,
+    currentLoad: teamMember._count.assignments,
     active: teamMember.active,
   };
 }

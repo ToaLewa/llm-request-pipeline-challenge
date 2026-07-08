@@ -13,8 +13,10 @@ export type ClinicalTeamRecord = {
   jobTitle: string;
   description: string;
   ptoStatus: boolean;
-  currentLoad: number;
   active: boolean;
+  _count: {
+    assignments: number;
+  };
   skills: Array<{
     skill: ClinicalTeamSkill;
   }>;
@@ -49,6 +51,11 @@ export type ClinicalTeamQueryClient = {
   teamMember: {
     findMany(args: {
       include: {
+        _count: {
+          select: {
+            assignments: true;
+          };
+        };
         skills: {
           include: {
             skill: true;
@@ -76,6 +83,11 @@ export type ClinicalTeamQueryClient = {
 export async function listClinicalTeamRecords(client: ClinicalTeamQueryClient = getPrisma()): Promise<ClinicalTeamRecord[]> {
   return client.teamMember.findMany({
     include: {
+      _count: {
+        select: {
+          assignments: true,
+        },
+      },
       skills: {
         include: {
           skill: true,

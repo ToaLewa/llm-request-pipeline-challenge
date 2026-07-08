@@ -10,8 +10,8 @@ describe('getClinicalTeam', () => {
         jobTitle: 'Renal Pathologist',
         description: 'Renal pathologist focused on autoimmune kidney disease.',
         ptoStatus: false,
-        currentLoad: 4,
         active: true,
+        _count: { assignments: 4 },
         skills: [
           { skill: { name: 'Renal Pathology', category: 'specialty' } },
           { skill: { name: 'Renal Biopsy', category: 'case_type' } },
@@ -25,6 +25,11 @@ describe('getClinicalTeam', () => {
 
     expect(findMany).toHaveBeenCalledWith({
       include: {
+        _count: {
+          select: {
+            assignments: true,
+          },
+        },
         skills: {
           include: {
             skill: true,

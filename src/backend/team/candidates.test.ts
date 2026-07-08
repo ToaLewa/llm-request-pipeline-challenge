@@ -47,8 +47,8 @@ describe('findCandidateDoctors', () => {
         name: 'Dr. Emily Chen',
         description: 'Renal pathologist focused on autoimmune kidney disease.',
         ptoStatus: false,
-        currentLoad: 4,
         active: true,
+        _count: { assignments: 4 },
         skills: [
           { skill: { name: 'Renal Pathology', skillCode: 'renal-pathology', category: 'specialty' } },
           { skill: { name: 'Renal Biopsy', skillCode: 'renal-biopsy', category: 'case_type' } },
@@ -76,13 +76,18 @@ describe('findCandidateDoctors', () => {
         },
       },
       include: {
+        _count: {
+          select: {
+            assignments: true,
+          },
+        },
         skills: {
           include: {
             skill: true,
           },
         },
       },
-      orderBy: [{ currentLoad: 'asc' }],
+      orderBy: [{ assignments: { _count: 'asc' } }],
     });
     expect(candidates).toEqual([
       {
@@ -105,8 +110,8 @@ describe('findCandidateDoctors', () => {
         name: 'Dr. Ravi Patel',
         description: 'General surgical pathology.',
         ptoStatus: false,
-        currentLoad: 1,
         active: true,
+        _count: { assignments: 1 },
         skills: [{ skill: { name: 'Renal Biopsy', skillCode: 'renal-biopsy', category: 'case_type' } }],
       },
       {
@@ -114,8 +119,8 @@ describe('findCandidateDoctors', () => {
         name: 'Dr. Emily Chen',
         description: 'Renal pathology.',
         ptoStatus: false,
-        currentLoad: 4,
         active: true,
+        _count: { assignments: 4 },
         skills: [
           { skill: { name: 'Renal Pathology', skillCode: 'renal-pathology', category: 'specialty' } },
           { skill: { name: 'Renal Biopsy', skillCode: 'renal-biopsy', category: 'case_type' } },
@@ -157,8 +162,8 @@ describe('findCandidateDoctorsBySkillCodes', () => {
         name: 'Dr. Emily Chen',
         description: 'Renal pathology.',
         ptoStatus: false,
-        currentLoad: 4,
         active: true,
+        _count: { assignments: 4 },
         skills: [{ skill: { name: 'Renal Pathology', skillCode: 'renal-pathology', category: 'specialty' } }],
       },
     ]);
@@ -193,8 +198,8 @@ describe('findCandidateDoctorsByName', () => {
         name: 'Dr. Emily Chen',
         description: 'Renal pathology.',
         ptoStatus: false,
-        currentLoad: 4,
         active: true,
+        _count: { assignments: 4 },
         skills: [{ skill: { name: 'Renal Pathology', skillCode: 'renal-pathology', category: 'specialty' } }],
       },
     ]);
@@ -213,13 +218,18 @@ describe('findCandidateDoctorsByName', () => {
         },
       },
       include: {
+        _count: {
+          select: {
+            assignments: true,
+          },
+        },
         skills: {
           include: {
             skill: true,
           },
         },
       },
-      orderBy: [{ currentLoad: 'asc' }],
+      orderBy: [{ assignments: { _count: 'asc' } }],
       take: 8,
     });
     expect(candidates.map((candidate) => candidate.name)).toEqual(['Dr. Emily Chen']);

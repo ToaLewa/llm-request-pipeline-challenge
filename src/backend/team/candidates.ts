@@ -72,7 +72,7 @@ export async function findCandidateDoctorsBySkillCodes(
       candidate,
       matchCount: candidate.skills.filter(({ skill }) => requiredSkillCodeSet.has(skill.skillCode)).length,
     }))
-    .sort((a, b) => b.matchCount - a.matchCount || a.candidate.currentLoad - b.candidate.currentLoad)
+    .sort((a, b) => b.matchCount - a.matchCount || a.candidate._count.assignments - b.candidate._count.assignments)
     .slice(0, limit)
     .map(({ candidate }) => toCandidateDoctorPayload(candidate));
 }
@@ -105,7 +105,7 @@ function toCandidateDoctorPayload(candidate: CandidateDoctorRecord): CandidateDo
     caseTypes: skillNamesForCategory(candidate, 'case_type'),
     description: candidate.description,
     ptoStatus: candidate.ptoStatus,
-    currentLoad: candidate.currentLoad,
+    currentLoad: candidate._count.assignments,
   };
 }
 

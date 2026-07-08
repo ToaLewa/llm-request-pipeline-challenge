@@ -13,8 +13,10 @@ export type CandidateDoctorRecord = {
   name: string;
   description: string;
   ptoStatus: boolean;
-  currentLoad: number;
   active: boolean;
+  _count: {
+    assignments: number;
+  };
   skills: Array<{
     skill: CandidateSkill;
   }>;
@@ -37,13 +39,18 @@ export type CandidateDoctorQueryClient = {
         };
       };
       include: {
+        _count: {
+          select: {
+            assignments: true;
+          };
+        };
         skills: {
           include: {
             skill: true;
           };
         };
       };
-      orderBy: Array<{ currentLoad: 'asc' }>;
+      orderBy: Array<{ assignments: { _count: 'asc' } }>;
     }): Promise<CandidateDoctorRecord[]>;
   };
 };
@@ -60,13 +67,18 @@ export type CandidateDoctorByNameQueryClient = {
         };
       };
       include: {
+        _count: {
+          select: {
+            assignments: true;
+          };
+        };
         skills: {
           include: {
             skill: true;
           };
         };
       };
-      orderBy: Array<{ currentLoad: 'asc' }>;
+      orderBy: Array<{ assignments: { _count: 'asc' } }>;
       take: number;
     }): Promise<CandidateDoctorRecord[]>;
   };
@@ -91,13 +103,18 @@ export async function findCandidateDoctorRecordsBySkillCodes(
       },
     },
     include: {
+      _count: {
+        select: {
+          assignments: true,
+        },
+      },
       skills: {
         include: {
           skill: true,
         },
       },
     },
-    orderBy: [{ currentLoad: 'asc' }],
+    orderBy: [{ assignments: { _count: 'asc' } }],
   });
 }
 
@@ -118,13 +135,18 @@ export async function findCandidateDoctorRecordsByName(args: {
       },
     },
     include: {
+      _count: {
+        select: {
+          assignments: true,
+        },
+      },
       skills: {
         include: {
           skill: true,
         },
       },
     },
-    orderBy: [{ currentLoad: 'asc' }],
+    orderBy: [{ assignments: { _count: 'asc' } }],
     take: args.limit,
   });
 }

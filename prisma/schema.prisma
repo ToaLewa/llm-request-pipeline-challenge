@@ -13,7 +13,6 @@ model TeamMember {
   jobTitle    String
   description String
   ptoStatus   Boolean       @default(false)
-  currentLoad Int           @default(0)
   active      Boolean       @default(true)
 
   skills      TeamMemberSkill[]
