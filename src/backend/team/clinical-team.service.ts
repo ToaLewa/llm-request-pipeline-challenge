@@ -10,6 +10,7 @@ type ClinicalTeamSkill = {
 type ClinicalTeamRecord = {
   id: number;
   name: string;
+  jobTitle: string;
   description: string;
   ptoStatus: boolean;
   currentLoad: number;
@@ -41,6 +42,7 @@ type AssignedCaseRecord = {
 export type ClinicalTeamMember = {
   id: number;
   name: string;
+  jobTitle: string;
   specialties: string[];
   skills: string[];
   caseTypes: string[];
@@ -147,6 +149,7 @@ function toClinicalTeamMember(teamMember: ClinicalTeamRecord): ClinicalTeamMembe
   return {
     id: teamMember.id,
     name: teamMember.name,
+    jobTitle: teamMember.jobTitle,
     specialties: skillNamesForCategory(teamMember, 'specialty'),
     skills: skillNamesForCategory(teamMember, 'clinical_skill'),
     caseTypes: skillNamesForCategory(teamMember, 'case_type'),

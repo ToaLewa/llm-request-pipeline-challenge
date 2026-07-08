@@ -4,6 +4,7 @@ export const teamMembers = [
   {
     "id": 1,
     "name": "Dr. Emily Chen",
+    "jobTitle": "Renal Pathologist",
     "description": "Renal pathologist focused on autoimmune kidney disease and complex biopsy interpretation.",
     "ptoStatus": false,
     "currentLoad": 4,
@@ -14,6 +15,7 @@ export const teamMembers = [
   {
     "id": 2,
     "name": "Dr. Ravi Patel",
+    "jobTitle": "Surgical Pathologist",
     "description": "General surgical pathologist with broad biopsy review experience and GI pathology coverage.",
     "ptoStatus": false,
     "currentLoad": 2,
@@ -24,6 +26,7 @@ export const teamMembers = [
   {
     "id": 3,
     "name": "Dr. Maria Gomez",
+    "jobTitle": "Renal Pathology Specialist",
     "description": "Renal pathology specialist with glomerulonephritis expertise, currently unavailable for assignment.",
     "ptoStatus": true,
     "currentLoad": 1,
@@ -34,6 +37,7 @@ export const teamMembers = [
   {
     "id": 4,
     "name": "Dr. Aisha Williams",
+    "jobTitle": "GI Pathologist",
     "description": "GI pathologist specializing in inflammatory bowel disease and dysplasia surveillance.",
     "ptoStatus": false,
     "currentLoad": 5,
@@ -44,6 +48,7 @@ export const teamMembers = [
   {
     "id": 5,
     "name": "Dr. Daniel Kim",
+    "jobTitle": "Dermatopathologist",
     "description": "Dermatopathologist focused on melanocytic lesions and complex inflammatory skin disease.",
     "ptoStatus": false,
     "currentLoad": 3,
@@ -54,6 +59,7 @@ export const teamMembers = [
   {
     "id": 6,
     "name": "Dr. Linh Nguyen",
+    "jobTitle": "Hematopathologist",
     "description": "Hematopathologist with leukemia and lymphoma classification expertise.",
     "ptoStatus": false,
     "currentLoad": 6,
@@ -64,6 +70,7 @@ export const teamMembers = [
   {
     "id": 7,
     "name": "Dr. Laura Smith",
+    "jobTitle": "Cytopathologist",
     "description": "Cytopathologist covering thyroid, pulmonary, and head and neck aspiration cases.",
     "ptoStatus": false,
     "currentLoad": 2,
@@ -74,6 +81,7 @@ export const teamMembers = [
   {
     "id": 8,
     "name": "Dr. Marcus Brown",
+    "jobTitle": "Breast Pathologist",
     "description": "Breast pathologist experienced in core biopsies, resections, and biomarker interpretation.",
     "ptoStatus": false,
     "currentLoad": 4,
@@ -84,6 +92,7 @@ export const teamMembers = [
   {
     "id": 9,
     "name": "Dr. Sofia Garcia",
+    "jobTitle": "Thoracic Pathologist",
     "description": "Thoracic pathologist focused on lung tumor typing and small biopsy triage.",
     "ptoStatus": false,
     "currentLoad": 7,
@@ -94,6 +103,7 @@ export const teamMembers = [
   {
     "id": 10,
     "name": "Dr. Hannah Miller",
+    "jobTitle": "Neuropathologist",
     "description": "Neuropathologist with experience in brain tumor classification and intraoperative consultation.",
     "ptoStatus": false,
     "currentLoad": 3,
@@ -104,6 +114,7 @@ export const teamMembers = [
   {
     "id": 11,
     "name": "Dr. Owen Davis",
+    "jobTitle": "Molecular Pathologist",
     "description": "Molecular pathologist supporting oncology sequencing and biomarker interpretation.",
     "ptoStatus": false,
     "currentLoad": 5,
@@ -114,6 +125,7 @@ export const teamMembers = [
   {
     "id": 12,
     "name": "Dr. Elena Martinez",
+    "jobTitle": "Gynecologic Pathologist",
     "description": "Gynecologic pathologist specializing in endometrial carcinoma and frozen section support.",
     "ptoStatus": false,
     "currentLoad": 4,
@@ -124,6 +136,7 @@ export const teamMembers = [
   {
     "id": 13,
     "name": "Dr. Peter Anderson",
+    "jobTitle": "Genitourinary Pathologist",
     "description": "Genitourinary pathologist focused on prostate grading and renal mass resections.",
     "ptoStatus": false,
     "currentLoad": 6,
@@ -134,6 +147,7 @@ export const teamMembers = [
   {
     "id": 14,
     "name": "Dr. Maya Taylor",
+    "jobTitle": "Pediatric Pathologist",
     "description": "Pediatric pathologist covering solid tumors, autopsy review, and complex consults.",
     "ptoStatus": false,
     "currentLoad": 2,
@@ -144,6 +158,7 @@ export const teamMembers = [
   {
     "id": 15,
     "name": "Dr. Claire Thompson",
+    "jobTitle": "Renal and Transplant Pathologist",
     "description": "Renal and transplant pathologist with strong biopsy interpretation experience.",
     "ptoStatus": false,
     "currentLoad": 5,
@@ -154,6 +169,7 @@ export const teamMembers = [
   {
     "id": 16,
     "name": "Dr. Jamal Moore",
+    "jobTitle": "Surgical Pathologist",
     "description": "General surgical pathologist handling frozen sections, resections, and infectious disease cases.",
     "ptoStatus": false,
     "currentLoad": 1,
@@ -164,6 +180,7 @@ export const teamMembers = [
   {
     "id": 17,
     "name": "Dr. Priya Jackson",
+    "jobTitle": "Dermatopathologist",
     "description": "Dermatopathologist with cutaneous lymphoma and melanocytic lesion expertise.",
     "ptoStatus": false,
     "currentLoad": 4,
@@ -174,6 +191,7 @@ export const teamMembers = [
   {
     "id": 18,
     "name": "Dr. Ethan White",
+    "jobTitle": "GI Pathologist",
     "description": "GI pathologist focused on colon dysplasia, IBD, and resection correlation.",
     "ptoStatus": true,
     "currentLoad": 3,
@@ -184,6 +202,7 @@ export const teamMembers = [
   {
     "id": 19,
     "name": "Dr. Nora Harris",
+    "jobTitle": "Cytopathologist",
     "description": "Cytopathologist specializing in Pap cytology and thyroid FNA quality review.",
     "ptoStatus": false,
     "currentLoad": 6,
@@ -194,6 +213,7 @@ export const teamMembers = [
   {
     "id": 20,
     "name": "Dr. Samuel Clark",
+    "jobTitle": "Hematopathologist",
     "description": "Hematopathologist supporting marrow biopsies, lymphoma workups, and flow correlation.",
     "ptoStatus": false,
     "currentLoad": 2,
@@ -204,6 +224,7 @@ export const teamMembers = [
   {
     "id": 21,
     "name": "Dr. Grace Lewis",
+    "jobTitle": "Breast and Gynecologic Pathologist",
     "description": "Breast and gynecologic pathologist with biomarker and endometrial cancer expertise.",
     "ptoStatus": false,
     "currentLoad": 5,
@@ -214,6 +235,7 @@ export const teamMembers = [
   {
     "id": 22,
     "name": "Dr. Victor Robinson",
+    "jobTitle": "Thoracic and Molecular Pathologist",
     "description": "Thoracic and molecular pathologist focused on lung cancer sequencing workflows.",
     "ptoStatus": false,
     "currentLoad": 4,
@@ -224,6 +246,7 @@ export const teamMembers = [
   {
     "id": 23,
     "name": "Dr. Isabel Walker",
+    "jobTitle": "Neuropathologist",
     "description": "Neuropathologist covering brain tumors, autopsy neuropathology, and frozen sections.",
     "ptoStatus": false,
     "currentLoad": 3,
@@ -234,6 +257,7 @@ export const teamMembers = [
   {
     "id": 24,
     "name": "Dr. Benjamin Young",
+    "jobTitle": "Genitourinary Pathologist",
     "description": "Genitourinary pathologist with prostate biopsy and resection review focus.",
     "ptoStatus": false,
     "currentLoad": 7,
@@ -244,6 +268,7 @@ export const teamMembers = [
   {
     "id": 25,
     "name": "Dr. Fatima Allen",
+    "jobTitle": "Pediatric and Infectious Disease Pathologist",
     "description": "Pediatric and infectious disease pathologist handling unusual biopsy consults.",
     "ptoStatus": false,
     "currentLoad": 2,
@@ -254,6 +279,7 @@ export const teamMembers = [
   {
     "id": 26,
     "name": "Dr. Thomas King",
+    "jobTitle": "Surgical Pathologist",
     "description": "General surgical pathologist with broad resection, biopsy, and IHC experience.",
     "ptoStatus": false,
     "currentLoad": 8,
@@ -264,6 +290,7 @@ export const teamMembers = [
   {
     "id": 27,
     "name": "Dr. Zoe Wright",
+    "jobTitle": "Renal Pathologist",
     "description": "Renal pathologist specializing in transplant pathology and glomerular disease.",
     "ptoStatus": true,
     "currentLoad": 2,
@@ -274,6 +301,7 @@ export const teamMembers = [
   {
     "id": 28,
     "name": "Dr. Adrian Scott",
+    "jobTitle": "Dermatopathologist and Molecular Consultant",
     "description": "Dermatopathologist and molecular pathology consultant for difficult skin tumors.",
     "ptoStatus": false,
     "currentLoad": 5,
@@ -284,6 +312,7 @@ export const teamMembers = [
   {
     "id": 29,
     "name": "Dr. Miles Baker",
+    "jobTitle": "Hematopathology and Molecular Consultant",
     "description": "Hematopathology and molecular consultant for leukemia sequencing correlation.",
     "ptoStatus": false,
     "currentLoad": 6,
@@ -294,11 +323,56 @@ export const teamMembers = [
   {
     "id": 30,
     "name": "Dr. Naomi Adams",
+    "jobTitle": "Breast Pathologist",
     "description": "Breast pathologist covering urgent core biopsies and frozen section consultation.",
     "ptoStatus": false,
     "currentLoad": 1,
     "active": true,
     "createdAt": date("2026-07-07T00:11:18.048Z"),
     "updatedAt": date("2026-07-07T00:11:18.048Z")
+  },
+  {
+    "id": 31,
+    "name": "Jordan Lee",
+    "jobTitle": "Case Coordinator",
+    "description": "Administrative coordinator tracking incoming consults, paperwork completion, and handoffs between clinical staff.",
+    "ptoStatus": false,
+    "currentLoad": 0,
+    "active": true,
+    "createdAt": date("2026-07-07T00:11:18.080Z"),
+    "updatedAt": date("2026-07-07T00:11:18.080Z")
+  },
+  {
+    "id": 32,
+    "name": "Morgan Reed",
+    "jobTitle": "Department Administrator",
+    "description": "Administrative lead managing staffing logistics, departmental communications, and escalation routing.",
+    "ptoStatus": false,
+    "currentLoad": 0,
+    "active": true,
+    "createdAt": date("2026-07-07T00:11:18.112Z"),
+    "updatedAt": date("2026-07-07T00:11:18.112Z")
+  },
+  {
+    "id": 33,
+    "name": "Taylor Brooks",
+    "jobTitle": "Lab Operations Manager",
+    "description": "Operations manager coordinating specimen flow, lab capacity, and process issues before clinical review.",
+    "ptoStatus": false,
+    "currentLoad": 0,
+    "active": true,
+    "createdAt": date("2026-07-07T00:11:18.144Z"),
+    "updatedAt": date("2026-07-07T00:11:18.144Z")
+  },
+  {
+    "id": 34,
+    "name": "Alex Rivera",
+    "jobTitle": "Scheduling Specialist",
+    "description": "Administrative specialist coordinating coverage schedules, PTO updates, and follow-up appointment logistics.",
+    "ptoStatus": false,
+    "currentLoad": 0,
+    "active": true,
+    "createdAt": date("2026-07-07T00:11:18.176Z"),
+    "updatedAt": date("2026-07-07T00:11:18.176Z")
   }
 ];

@@ -1,6 +1,7 @@
 export type TeamMember = {
   id: number;
   name: string;
+  jobTitle: string;
   description: string;
   ptoStatus: boolean;
   active: boolean;

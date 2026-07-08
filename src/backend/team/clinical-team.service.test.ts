@@ -7,6 +7,7 @@ describe('getClinicalTeam', () => {
       {
         id: 1,
         name: 'Dr. Emily Chen',
+        jobTitle: 'Renal Pathologist',
         description: 'Renal pathologist focused on autoimmune kidney disease.',
         ptoStatus: false,
         currentLoad: 4,
@@ -36,6 +37,7 @@ describe('getClinicalTeam', () => {
       {
         id: 1,
         name: 'Dr. Emily Chen',
+        jobTitle: 'Renal Pathologist',
         specialties: ['Renal Pathology'],
         skills: ['Lupus Nephritis'],
         caseTypes: ['Renal Biopsy'],

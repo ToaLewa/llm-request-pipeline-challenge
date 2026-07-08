@@ -23,7 +23,7 @@ export function ClinicalTeamPage({ clinicalTeamState, onNavigate }: ClinicalTeam
           <aside className="summary-card" aria-label="Clinical team summary">
             <span className="summary-number">{teamMembers.length}</span>
             <span className="summary-label">Clinical team members</span>
-            <span className="summary-detail">{teamMembers.filter((teamMember) => !teamMember.ptoStatus && teamMember.active).length} available for auto-assignment</span>
+            <span className="summary-detail">{teamMembers.filter((teamMember) => !teamMember.ptoStatus && teamMember.active).length} available team members</span>
           </aside>
         </div>
       </header>

@@ -27,6 +27,19 @@ function Tags({ values }: { values: string[] }) {
   );
 }
 
+function SkillSection({ title, values }: { title: string; values: string[] }) {
+  if (values.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="skill-section">
+      <h3>{title}</h3>
+      <div className="tag-list"><Tags values={values} /></div>
+    </div>
+  );
+}
+
 export function ClinicalTeamMemberCard({ member, onNavigate }: ClinicalTeamMemberCardProps) {
   const { handleNavigationClick } = useAppNavigation(onNavigate);
   const muted = member.ptoStatus || !member.active;
@@ -41,7 +54,7 @@ export function ClinicalTeamMemberCard({ member, onNavigate }: ClinicalTeamMembe
     >
       <div className="clinical-team-member-card-header">
         <div>
-          <p className="clinical-team-member-role">Pathologist</p>
+          <p className="clinical-team-member-role">{member.jobTitle}</p>
           <h2>{member.name}</h2>
         </div>
         <span className={`status-pill ${statusClass}`}>{availabilityLabel(member)}</span>
@@ -51,18 +64,9 @@ export function ClinicalTeamMemberCard({ member, onNavigate }: ClinicalTeamMembe
         <span>Current load</span>
         <strong>{member.currentLoad}</strong>
       </div>
-      <div className="skill-section">
-        <h3>Specialties</h3>
-        <div className="tag-list"><Tags values={member.specialties} /></div>
-      </div>
-      <div className="skill-section">
-        <h3>Clinical Skills</h3>
-        <div className="tag-list"><Tags values={member.skills} /></div>
-      </div>
-      <div className="skill-section">
-        <h3>Case Types</h3>
-        <div className="tag-list"><Tags values={member.caseTypes} /></div>
-      </div>
+      <SkillSection title="Specialties" values={member.specialties} />
+      <SkillSection title="Clinical Skills" values={member.skills} />
+      <SkillSection title="Case Types" values={member.caseTypes} />
     </a>
   );
 }

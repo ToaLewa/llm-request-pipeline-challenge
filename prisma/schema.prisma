@@ -10,6 +10,7 @@ datasource db {
 model TeamMember {
   id          Int           @id @default(autoincrement())
   name        String
+  jobTitle    String
   description String
   ptoStatus   Boolean       @default(false)
   currentLoad Int           @default(0)
