@@ -165,12 +165,16 @@ p {
 .landing-hero {
   display: grid;
   gap: 1.25rem;
-  max-width: 58rem;
+  max-width: none;
   padding-block: clamp(1rem, 5vw, 4rem);
 }
 
 .landing-hero h1 {
-  max-width: 13ch;
+  max-width: 11ch;
+}
+
+.landing-hero .intro {
+  max-width: 48rem;
 }
 
 .hero-actions {
@@ -196,6 +200,18 @@ p {
 
 .button-link:hover {
   background: #115e59;
+}
+
+.button-link-secondary {
+  border: 1px solid rgba(15, 118, 110, 0.2);
+  color: #0f766e;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 1rem 2rem rgba(15, 23, 42, 0.08);
+}
+
+.button-link-secondary:hover {
+  color: #ffffff;
+  background: #0f766e;
 }
 
 .request-workspace {
@@ -381,6 +397,92 @@ p {
 .feature-card p {
   color: #475569;
   line-height: 1.6;
+}
+
+.landing-command-card {
+  display: grid;
+  gap: 1.1rem;
+  padding: clamp(1.25rem, 3vw, 1.8rem);
+  border: 1px solid rgba(15, 118, 110, 0.18);
+  border-radius: 1.75rem;
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.92), rgba(236, 253, 245, 0.74)),
+    radial-gradient(circle at 85% 12%, rgba(20, 184, 166, 0.22), transparent 12rem);
+  box-shadow: 0 1.75rem 4.5rem rgba(15, 23, 42, 0.12);
+}
+
+.landing-command-card strong {
+  color: #10201d;
+  font-size: clamp(1.45rem, 3vw, 2rem);
+  line-height: 1.1;
+  letter-spacing: -0.05em;
+}
+
+.landing-command-card p {
+  color: #475569;
+  line-height: 1.6;
+}
+
+.command-label {
+  width: fit-content;
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  color: #0f766e;
+  background: #ccfbf1;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.command-flow {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.command-flow span {
+  position: relative;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(15, 118, 110, 0.12);
+  border-radius: 1rem;
+  color: #0f766e;
+  background: rgba(255, 255, 255, 0.8);
+  font-weight: 900;
+}
+
+.command-flow span:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 1.25rem;
+  bottom: -0.72rem;
+  width: 0.12rem;
+  height: 0.72rem;
+  background: rgba(15, 118, 110, 0.28);
+}
+
+.landing-proof {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: clamp(1.25rem, 4vw, 3rem);
+  align-items: center;
+  padding: clamp(1.5rem, 4vw, 2.25rem);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 1.75rem;
+  background: rgba(16, 32, 29, 0.94);
+  box-shadow: 0 1.75rem 4rem rgba(15, 23, 42, 0.16);
+}
+
+.landing-proof h2 {
+  max-width: 18ch;
+  color: #ffffff;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  line-height: 1;
+}
+
+.landing-proof p:last-child {
+  color: #d1fae5;
+  font-size: clamp(1.05rem, 2vw, 1.2rem);
+  line-height: 1.7;
 }
 
 .hero-grid {
@@ -825,6 +927,7 @@ h3 {
   .hero-grid,
   .feature-grid,
   .clinical-team-grid,
+  .landing-proof,
   .routing-result dl {
     grid-template-columns: 1fr;
   }
