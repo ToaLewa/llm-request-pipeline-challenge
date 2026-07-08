@@ -13,6 +13,17 @@ import {
 } from '../inference/doctor-ranking';
 import { parseRoutingDecision, type RoutingDecision } from '../inference/routing';
 import {
+  completeDoctorAssignmentWorkflow,
+  createDoctorRankingTask,
+  createSkillsRankingTask,
+  loadDoctorAssignmentWorkflow,
+  markDoctorAssignmentWorkflowUnassignable,
+  updateDoctorAssignmentWorkflowStatus,
+  type DoctorAssignmentWorkflowClient,
+  type DoctorAssignmentWorkflowStatus,
+  type WorkflowTaskRecord,
+} from '../database/doctor-assignment.queries';
+import {
   createOpenAISkillsRankingClient,
   createSkillsRanking,
   validateSkillsRanking,
@@ -20,72 +31,9 @@ import {
   type SkillsRanking,
   type SkillsRankingClient,
 } from '../inference/skills-ranking';
-import { getPrisma } from '../database/client';
 import { listAvailableSkills, type AvailableSkill } from '../skills/skills.service';
 
-type WorkflowRequestRecord = {
-  id: number;
-  rawRequest: string;
-};
-
-type WorkflowTaskRecord = {
-  id: number;
-  requestId: number | null;
-  taskType: string;
-  sequence: number;
-  status: string;
-  input: unknown;
-  output: unknown;
-  reason: string | null;
-};
-
-type WorkflowRecord = {
-  id: number;
-  requests: WorkflowRequestRecord[];
-  tasks: WorkflowTaskRecord[];
-};
-
-type WorkflowTaskCreateData = {
-  workflowId: number;
-  requestId?: number | null;
-  taskType: string;
-  sequence: number;
-  status: string;
-  input: unknown;
-  output: unknown;
-  reason: string | null;
-};
-
-type AssignmentCreateData = {
-  teamMemberId: number;
-  workflowTaskId: number;
-  summary: string;
-};
-
-type DoctorAssignmentTransactionClient = {
-  workflowTask: {
-    create(args: { data: WorkflowTaskCreateData }): Promise<WorkflowTaskRecord>;
-  };
-  assignment: {
-    create(args: { data: AssignmentCreateData }): Promise<{ id: number }>;
-  };
-  workflow: {
-    update(args: { where: { id: number }; data: { status: string } }): Promise<{ id: number; status: string }>;
-  };
-};
-
-export type DoctorAssignmentWorkflowClient = {
-  workflow: {
-    findUnique(args: {
-      where: { id: number };
-      include: {
-        requests: { orderBy: { createdAt: 'asc' } };
-        tasks: { orderBy: [{ sequence: 'asc' }, { createdAt: 'asc' }] };
-      };
-    }): Promise<WorkflowRecord | null>;
-  };
-  $transaction<T>(handler: (tx: DoctorAssignmentTransactionClient) => Promise<T>): Promise<T>;
-};
+export type { DoctorAssignmentWorkflowClient } from '../database/doctor-assignment.queries';
 
 export type ProcessDoctorAssignmentWorkflowOptions = {
   client?: DoctorAssignmentWorkflowClient;
@@ -117,8 +65,8 @@ export async function processDoctorAssignmentWorkflow(
   workflowId: number,
   options: ProcessDoctorAssignmentWorkflowOptions = {},
 ): Promise<DoctorAssignmentWorkflowResult> {
-  const client: DoctorAssignmentWorkflowClient = options.client ?? (getPrisma() as unknown as DoctorAssignmentWorkflowClient);
-  const workflow = await loadWorkflow(workflowId, client);
+  const client = options.client;
+  const workflow = await loadDoctorAssignmentWorkflow(workflowId, client);
   const routingTask = workflow.tasks.find((task) => task.taskType === 'routing_decision');
 
   if (!routingTask) {
@@ -151,12 +99,12 @@ export async function processDoctorAssignmentWorkflow(
   });
 
   if (skillsRankingResult.status === 'needs_review') {
-    await updateWorkflowStatus(client, workflowId, 'needs_review');
+    await updateDoctorAssignmentWorkflowStatus({ client, workflowId, status: 'needs_review' });
     return { status: 'needs_review', workflowId };
   }
 
   if (skillsRankingResult.ranking.rankedSkills.length === 0) {
-    await persistUnassignableWorkflow({
+    await markDoctorAssignmentWorkflowUnassignable({
       client,
       workflowId,
       requestId: request.id,
@@ -173,7 +121,7 @@ export async function processDoctorAssignmentWorkflow(
   const candidateDoctors = await (options.findCandidateDoctors ?? ((codes) => findCandidateDoctorsBySkillCodes(codes)))(skillCodes);
 
   if (candidateDoctors.length === 0) {
-    await persistUnassignableWorkflow({
+    await markDoctorAssignmentWorkflowUnassignable({
       client,
       workflowId,
       requestId: request.id,
@@ -195,26 +143,21 @@ export async function processDoctorAssignmentWorkflow(
     doctorRankingClient,
   });
 
-  const doctorRankingTask = await client.$transaction(async (tx) => tx.workflowTask.create({
-    data: {
-      workflowId,
-      requestId: request.id,
-      taskType: 'doctor_ranking',
-      sequence: 3,
-      status: doctorRankingResult.status,
-      input: {
-        rawRequest,
-        routingDecision,
-        rankedSkills: skillsRankingResult.ranking.rankedSkills,
-        candidateDoctors,
-      },
-      output: doctorRankingResult.ranking,
-      reason: doctorRankingResult.reason,
-    },
-  }));
+  const doctorRankingTask = await createDoctorRankingTask({
+    client,
+    workflowId,
+    requestId: request.id,
+    rawRequest,
+    routingDecision,
+    rankedSkills: skillsRankingResult.ranking.rankedSkills,
+    candidateDoctors,
+    status: doctorRankingResult.status,
+    ranking: doctorRankingResult.ranking,
+    reason: doctorRankingResult.reason,
+  });
 
   const finalAssignment = toFinalAssignment(doctorRankingResult.ranking, candidateDoctors, doctorRankingResult.status);
-  const workflowStatus = finalAssignment.status === 'completed' ? 'assigned' : finalAssignment.status;
+  const workflowStatus: DoctorAssignmentWorkflowStatus = finalAssignment.status === 'completed' ? 'assigned' : finalAssignment.status;
   const assignmentSummary = finalAssignment.status === 'completed' && finalAssignment.output.assignedDoctorId !== null
     ? await createAssignmentSummary(
       {
@@ -249,59 +192,21 @@ export async function processDoctorAssignmentWorkflow(
     )
     : null;
 
-  await client.$transaction(async (tx) => {
-    const doctorAssignmentTask = await tx.workflowTask.create({
-      data: {
-        workflowId,
-        requestId: request.id,
-        taskType: 'doctor_assignment',
-        sequence: 4,
-        status: finalAssignment.status,
-        input: {
-          doctorRankingTaskId: doctorRankingTask.id,
-          selectedDoctorId: doctorRankingResult.ranking.selectedDoctorId,
-        },
-        output: finalAssignment.output,
-        reason: finalAssignment.reason,
-      },
-    });
-
-    if (assignmentSummary && finalAssignment.output.assignedDoctorId !== null) {
-      await tx.assignment.create({
-        data: {
-          teamMemberId: finalAssignment.output.assignedDoctorId,
-          workflowTaskId: doctorAssignmentTask.id,
-          summary: assignmentSummary.summary,
-        },
-      });
-    }
-
-    if (finalAssignment.status === 'unassignable') {
-      await tx.workflowTask.create({
-        data: {
-          workflowId,
-          requestId: request.id,
-          taskType: 'unknown_human_review',
-          sequence: 5,
-          status: 'required',
-          input: {
-            failedTaskId: doctorAssignmentTask.id,
-            failedTaskType: doctorAssignmentTask.taskType,
-            doctorAssignmentStatus: finalAssignment.status,
-          },
-          output: {
-            route: 'unknown_human_review',
-            reason: finalAssignment.reason ?? 'Doctor assignment failed and requires human review.',
-          },
-          reason: finalAssignment.reason ?? 'Doctor assignment failed and requires human review.',
-        },
-      });
-    }
-
-    await tx.workflow.update({ where: { id: workflowId }, data: { status: workflowStatus } });
+  await completeDoctorAssignmentWorkflow({
+    client,
+    workflowId,
+    requestId: request.id,
+    doctorRankingTaskId: doctorRankingTask.id,
+    selectedDoctorId: doctorRankingResult.ranking.selectedDoctorId,
+    finalAssignmentStatus: finalAssignment.status,
+    finalAssignmentOutput: finalAssignment.output,
+    finalAssignmentReason: finalAssignment.reason,
+    workflowStatus,
+    assignmentSummary: assignmentSummary?.summary ?? null,
+    assignedDoctorId: finalAssignment.output.assignedDoctorId,
   });
 
-  return { status: workflowStatus as DoctorAssignmentWorkflowResult['status'], workflowId };
+  return { status: workflowStatus, workflowId };
 }
 
 function buildAssignmentSummaryContext(
@@ -318,24 +223,8 @@ function buildAssignmentSummaryContext(
     }));
 }
 
-async function loadWorkflow(workflowId: number, client: DoctorAssignmentWorkflowClient): Promise<WorkflowRecord> {
-  const workflow = await client.workflow.findUnique({
-    where: { id: workflowId },
-    include: {
-      requests: { orderBy: { createdAt: 'asc' } },
-      tasks: { orderBy: [{ sequence: 'asc' }, { createdAt: 'asc' }] },
-    },
-  });
-
-  if (!workflow) {
-    throw new Error(`Workflow ${workflowId} was not found.`);
-  }
-
-  return workflow;
-}
-
 async function rankAndPersistSkills(args: {
-  client: DoctorAssignmentWorkflowClient;
+  client?: DoctorAssignmentWorkflowClient;
   workflowId: number;
   requestId: number;
   rawRequest: string;
@@ -370,22 +259,17 @@ async function rankAndPersistSkills(args: {
     };
   }
 
-  const task = await args.client.$transaction(async (tx) => tx.workflowTask.create({
-    data: {
-      workflowId: args.workflowId,
-      requestId: args.requestId,
-      taskType: 'skills_ranking',
-      sequence: 2,
-      status,
-      input: {
-        rawRequest: args.rawRequest,
-        routingDecision: args.routingDecision,
-        availableSkills: args.availableSkills,
-      },
-      output: ranking,
-      reason: ranking.reason,
-    },
-  }));
+  const task = await createSkillsRankingTask({
+    client: args.client,
+    workflowId: args.workflowId,
+    requestId: args.requestId,
+    rawRequest: args.rawRequest,
+    routingDecision: args.routingDecision,
+    availableSkills: args.availableSkills,
+    status,
+    ranking,
+    reason: ranking.reason,
+  });
 
   return { status, ranking, task };
 }
@@ -433,98 +317,6 @@ async function rankDoctors(args: {
       reason,
     };
   }
-}
-
-async function persistUnassignableWorkflow(args: {
-  client: DoctorAssignmentWorkflowClient;
-  workflowId: number;
-  requestId: number;
-  rawRequest: string;
-  routingDecision: RoutingDecision;
-  rankedSkills: RankedSkill[];
-  candidateDoctors: CandidateDoctorPayload[];
-  reason: string;
-}): Promise<void> {
-  await args.client.$transaction(async (tx) => {
-    const doctorRankingTask = await tx.workflowTask.create({
-      data: {
-        workflowId: args.workflowId,
-        requestId: args.requestId,
-        taskType: 'doctor_ranking',
-        sequence: 3,
-        status: 'unassignable',
-        input: {
-          rawRequest: args.rawRequest,
-          routingDecision: args.routingDecision,
-          rankedSkills: args.rankedSkills,
-          candidateDoctors: args.candidateDoctors,
-        },
-        output: {
-          selectedDoctorId: null,
-          confidence: 1,
-          assignmentReason: '',
-          rankedCandidates: [],
-          unassignable: true,
-          unassignableReason: args.reason,
-        },
-        reason: args.reason,
-      },
-    });
-
-    const doctorAssignmentTask = await tx.workflowTask.create({
-      data: {
-        workflowId: args.workflowId,
-        requestId: args.requestId,
-        taskType: 'doctor_assignment',
-        sequence: 4,
-        status: 'unassignable',
-        input: {
-          doctorRankingTaskId: doctorRankingTask.id,
-          selectedDoctorId: null,
-        },
-        output: {
-          assignedDoctorId: null,
-          assignedDoctorName: null,
-          assignmentReason: null,
-          rankingConfidence: 1,
-          unassignableReason: args.reason,
-        },
-        reason: args.reason,
-      },
-    });
-
-    await tx.workflowTask.create({
-      data: {
-        workflowId: args.workflowId,
-        requestId: args.requestId,
-        taskType: 'unknown_human_review',
-        sequence: 5,
-        status: 'required',
-        input: {
-          failedTaskId: doctorAssignmentTask.id,
-          failedTaskType: doctorAssignmentTask.taskType,
-          doctorAssignmentStatus: doctorAssignmentTask.status,
-        },
-        output: {
-          route: 'unknown_human_review',
-          reason: args.reason,
-        },
-        reason: args.reason,
-      },
-    });
-
-    await tx.workflow.update({ where: { id: args.workflowId }, data: { status: 'unassignable' } });
-  });
-}
-
-async function updateWorkflowStatus(
-  client: DoctorAssignmentWorkflowClient,
-  workflowId: number,
-  status: 'needs_review',
-): Promise<void> {
-  await client.$transaction(async (tx) => {
-    await tx.workflow.update({ where: { id: workflowId }, data: { status } });
-  });
 }
 
 function toFinalAssignment(

@@ -5,10 +5,8 @@ import type { DoctorRankingClient } from '../inference/doctor-ranking';
 import type { RoutingDecision } from '../inference/routing';
 import type { SkillsRankingClient } from '../inference/skills-ranking';
 import type { AvailableSkill } from '../skills/skills.service';
-import {
-  processDoctorAssignmentWorkflow,
-  type DoctorAssignmentWorkflowClient,
-} from './doctor-assignment.service';
+import type { DoctorAssignmentWorkflowClient } from '../database/doctor-assignment.queries';
+import { processDoctorAssignmentWorkflow } from './doctor-assignment.service';
 
 const doctorRoutingDecision: RoutingDecision = {
   route: 'doctor_assignment',
