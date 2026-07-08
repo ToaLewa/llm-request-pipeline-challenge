@@ -4,6 +4,9 @@ LLM Request Pipeline Challenge is a TypeScript application that evaluates incomi
 
 The app provides a React frontend for submitting requests and reviewing workflows, an Express backend API for orchestration, and a PostgreSQL database managed by Prisma. OpenAI-backed inference can be enabled for request routing, workflow action selection, skills ranking, doctor ranking, and assignment summaries.
 
+## Demo Link
+https://youtu.be/Zkh8x7maMNw
+
 ## What It Includes
 
 - A Vite + React frontend on port `5173`
