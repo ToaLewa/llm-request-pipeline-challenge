@@ -60,7 +60,7 @@ export class OpenAIRoutingDecisionClient implements RoutingDecisionClient {
           'Return a JSON object matching the outputSchema.',
           `route must be exactly one of: ${requestRoutes.join(', ')}.`,
           `priority must be exactly one of: ${requestPriorities.join(', ')}.`,
-          'Use route unknown when the request cannot be classified.',
+          'Use route unknown_human_review when the request cannot be classified.',
           'Use priority normal unless the request clearly indicates low or urgent priority.',
         ].join(' '),
         rawRequest: input.rawRequest,
@@ -82,6 +82,7 @@ export const routingSystemPrompt = [
   'If it describes a clinical case, lab order, biopsy, diagnosis, patient condition, or specialist review need, route to doctor_assignment.',
   'Return only valid JSON matching the schema.',
   'Do not invent facts that are not present.',
+  'Use unknown_human_review for nonsensical, ambiguous, or unclassifiable requests.',
   'Use null or empty arrays when unknown.',
 ].join('\n');
 

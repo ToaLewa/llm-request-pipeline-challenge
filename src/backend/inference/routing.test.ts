@@ -24,6 +24,10 @@ const doctorAssignmentDecision: RoutingDecision = {
 };
 
 describe('createRoutingDecision', () => {
+  it('instructs inference to use the schema route for unclassifiable requests', () => {
+    expect(routingSystemPrompt).toContain('unknown_human_review');
+  });
+
   it('sends the raw request and routing schema to the inference client', async () => {
     const decideRoute = vi.fn<RoutingDecisionClient['decideRoute']>().mockResolvedValue(doctorAssignmentDecision);
 

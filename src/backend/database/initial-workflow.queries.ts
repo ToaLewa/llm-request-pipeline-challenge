@@ -19,6 +19,35 @@ type WorkflowTaskRecord = {
   id: number;
 };
 
+type WorkflowTaskCreateData =
+  | {
+    workflowId: number;
+    requestId: number;
+    taskType: 'routing_decision';
+    sequence: 1;
+    status: 'completed';
+    input: { rawRequest: string };
+    output: RoutingDecision;
+    reason: string;
+  }
+  | {
+    workflowId: number;
+    requestId: number;
+    taskType: 'unknown_human_review';
+    sequence: 2;
+    status: 'required';
+    input: {
+      failedTaskId: number;
+      failedTaskType: 'routing_decision';
+      routingRoute: 'unknown_human_review';
+    };
+    output: {
+      route: 'unknown_human_review';
+      reason: string;
+    };
+    reason: string;
+  };
+
 type InitialWorkflowTransactionClient = {
   workflowRequest: {
     create(args: { data: { rawRequest: string; source: string } }): Promise<WorkflowRequestRecord>;
@@ -28,18 +57,7 @@ type InitialWorkflowTransactionClient = {
     create(args: { data: Record<string, never> }): Promise<WorkflowRecord>;
   };
   workflowTask: {
-    create(args: {
-      data: {
-        workflowId: number;
-        requestId: number;
-        taskType: 'routing_decision';
-        sequence: 1;
-        status: 'completed';
-        input: { rawRequest: string };
-        output: RoutingDecision;
-        reason: string;
-      };
-    }): Promise<WorkflowTaskRecord>;
+    create(args: { data: WorkflowTaskCreateData }): Promise<WorkflowTaskRecord>;
   };
 };
 
@@ -79,6 +97,28 @@ export async function createInitialWorkflowRecords(args: {
         reason: args.routingDecision.reason,
       },
     });
+
+    if (args.routingDecision.route === 'unknown_human_review') {
+      await tx.workflowTask.create({
+        data: {
+          workflowId: workflow.id,
+          requestId: request.id,
+          taskType: 'unknown_human_review',
+          sequence: 2,
+          status: 'required',
+          input: {
+            failedTaskId: task.id,
+            failedTaskType: 'routing_decision',
+            routingRoute: args.routingDecision.route,
+          },
+          output: {
+            route: 'unknown_human_review',
+            reason: args.routingDecision.reason,
+          },
+          reason: args.routingDecision.reason,
+        },
+      });
+    }
 
     return {
       workflowId: workflow.id,
