@@ -103,6 +103,8 @@ Build and start the app with Postgres using Docker Compose:
 docker compose up --build
 ```
 
+The Docker Compose plugin is required to run this command.
+
 The compose file starts Postgres with this app database URL:
 
 ```sh
