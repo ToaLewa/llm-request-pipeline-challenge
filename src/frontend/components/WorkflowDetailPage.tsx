@@ -87,14 +87,9 @@ export function WorkflowDetailPage({ workflowId, onNavigate }: WorkflowDetailPag
       <Navigation route="/workflows" onNavigate={onNavigate} />
       <header className="hero">
         <a className="workflow-back-link" href="/workflows" onClick={handleBackClick}>Back to workflows</a>
-        <p className="eyebrow header-label">
-          <span className="logo-mark" aria-hidden="true"></span>
-          <span>Workflow Tasks</span>
-        </p>
         <div className="hero-grid">
           <div>
-            <h1>Workflow #{workflowId}</h1>
-            <p className="intro">Review every task associated with this workflow in execution order.</p>
+            <h2>Tasks For Workflow #{workflowId}</h2>
           </div>
           {workflowState.status === 'loaded' ? (
             <aside className="summary-card" aria-label="Workflow task summary">
