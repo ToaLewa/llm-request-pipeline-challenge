@@ -26,7 +26,7 @@ Create a local `.env` file from the example:
 cp .env.example .env
 ```
 
-Update `DATABASE_URL` if your local Postgres connection differs. Add `OPENAI_API_KEY` when using features that call OpenAI.
+Update `DATABASE_URL` if your local Postgres connection differs. `OPENAI_API_KEY` is required for the app to properly route requests, rank doctors, create workflow actions, and generate assignment summaries.
 
 ## Local Setup
 
@@ -106,7 +106,7 @@ The compose file starts Postgres with this app database URL:
 postgresql://postgres:postgres@postgres:5432/llm_request_pipeline?schema=public
 ```
 
-If you need OpenAI-backed inference inside Docker, pass `OPENAI_API_KEY` and optionally `OPENAI_MODEL` into the app service environment.
+The Docker build copies the local `.env` file into the app image when `.env` exists in the project root, so Docker runs can use the same local environment values.
 
 ## Scripts
 
