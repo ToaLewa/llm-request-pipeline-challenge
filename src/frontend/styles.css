@@ -217,8 +217,6 @@ p {
 .request-workspace {
   display: grid;
   gap: 1rem;
-  width: min(100%, 68rem);
-  margin: 0 auto;
 }
 
 .chat-panel-static-heading {
