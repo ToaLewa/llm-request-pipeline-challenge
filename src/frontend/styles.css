@@ -201,76 +201,28 @@ p {
 .request-workspace {
   display: grid;
   gap: 1rem;
-  width: min(100%, 72rem);
+  width: min(100%, 68rem);
   margin: 0 auto;
 }
 
 .request-panel {
-  display: grid;
-  gap: clamp(1.5rem, 4vw, 2.5rem);
-  min-height: clamp(34rem, 72vh, 48rem);
-  padding: clamp(1.25rem, 4vw, 2.25rem);
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 2rem;
-  background: rgba(255, 255, 255, 0.78);
-  box-shadow: 0 2rem 5rem rgba(15, 23, 42, 0.1);
+  gap: 0;
 }
 
 .request-heading {
-  display: grid;
-  gap: 1rem;
-  justify-items: center;
-  text-align: center;
-}
-
-.request-heading h1 {
-  max-width: 14ch;
-  font-size: clamp(2.6rem, 7vw, 5.75rem);
-}
-
-.request-heading .intro {
-  max-width: 50rem;
+  cursor: default;
 }
 
 .request-composer {
-  display: grid;
   align-self: stretch;
-  gap: 1rem;
 }
 
 .request-composer textarea {
-  width: 100%;
-  min-height: clamp(18rem, 42vh, 32rem);
-  resize: vertical;
-  padding: clamp(1.1rem, 3vw, 1.5rem);
-  border: 1px solid rgba(15, 23, 42, 0.12);
-  border-radius: 1.5rem;
-  color: #10201d;
-  background: #ffffff;
-  font: inherit;
-  font-size: clamp(1.05rem, 2vw, 1.25rem);
-  line-height: 1.6;
-  outline: none;
-  box-shadow: inset 0 0 0 1px transparent;
-}
-
-.request-composer textarea:focus {
-  border-color: rgba(15, 118, 110, 0.5);
-  box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
+  min-height: 11rem;
 }
 
 .request-thinking {
-  display: grid;
-  align-content: center;
-  justify-items: center;
-  gap: 1rem;
-  min-height: clamp(18rem, 42vh, 32rem);
-  padding: 2rem;
-  border: 1px solid rgba(15, 118, 110, 0.14);
-  border-radius: 1.5rem;
-  color: #475569;
-  background: #ffffff;
-  text-align: center;
+  width: fit-content;
 }
 
 .thinking-spinner {
@@ -280,17 +232,6 @@ p {
   border-top-color: #0f766e;
   border-radius: 999px;
   animation: request-spin 0.85s linear infinite;
-}
-
-.request-thinking strong {
-  color: #10201d;
-  font-size: 1.5rem;
-  letter-spacing: -0.04em;
-}
-
-.request-thinking p {
-  color: #64748b;
-  line-height: 1.6;
 }
 
 @keyframes request-spin {

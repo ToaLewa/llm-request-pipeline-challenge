@@ -56,38 +56,41 @@ export function RequestsPage({ onNavigate }: RequestsPageProps) {
     <section className="page-shell requests-page">
       <Navigation route="/requests" onNavigate={onNavigate} />
       <main className="request-workspace">
-        <section className="request-panel" aria-labelledby="request-title">
-          <div className="request-heading">
-            <p className="eyebrow header-label">
-              <span className="logo-mark" aria-hidden="true"></span>
-              <span>New Request</span>
-            </p>
-            <p className="intro">Describe your request in plain language, and we will route this to the appropriate team.</p>
+        <section className="request-panel workflow-chat-panel" aria-labelledby="request-title">
+          <div className="request-heading workflow-chat-summary">
+            <span>
+              <span className="eyebrow">New Request</span>
+              <span className="workflow-chat-title" id="request-title">Route a request</span>
+            </span>
           </div>
 
-          <LoadingSpinner
-            isLoading={isSubmitting}
-            className="request-thinking"
-            title="Routing request"
-            message="The server is thinking through the best workflow."
-          />
+          <div className="workflow-chat-content">
+            <p>Describe your request in plain language, and we will route this to the appropriate team.</p>
 
-          {!isSubmitting ? (
-            <form className="request-composer" onSubmit={handleSubmit}>
-              <label className="sr-only" htmlFor="request-text">Request details</label>
-              <textarea
-                id="request-text"
-                value={requestText}
-                onChange={(event) => setRequestText(event.target.value)}
-                placeholder="Paste or type the full request here..."
-                rows={12}
-              />
-              <div className="composer-actions">
-                <span>{requestText.trim().length} characters ready for routing</span>
-                <button type="submit">Route Request</button>
-              </div>
-            </form>
-          ) : null}
+            <LoadingSpinner
+              isLoading={isSubmitting}
+              className="request-thinking workflow-action-thinking"
+              spinnerClassName="workflow-action-spinner"
+              message="The server is thinking through the best workflow."
+            />
+
+            {!isSubmitting ? (
+              <form className="request-composer workflow-chat-composer" onSubmit={handleSubmit}>
+                <label className="sr-only" htmlFor="request-text">Request details</label>
+                <textarea
+                  id="request-text"
+                  value={requestText}
+                  onChange={(event) => setRequestText(event.target.value)}
+                  placeholder="Paste or type the full request here..."
+                  rows={4}
+                />
+                <div className="composer-actions">
+                  <span>{requestText.trim().length} characters ready for routing</span>
+                  <button type="submit">Route Request</button>
+                </div>
+              </form>
+            ) : null}
+          </div>
         </section>
 
         {submissionState.status === 'success' ? (
