@@ -1,25 +1,14 @@
-import { getPrisma } from '../database/client';
+import {
+  findCandidateDoctorRecordsByName,
+  findCandidateDoctorRecordsBySkillCodes,
+  type CandidateDoctorByNameQueryClient,
+  type CandidateDoctorQueryClient,
+  type CandidateDoctorRecord,
+  type SkillCategory,
+} from '../database/candidate-doctors.queries';
 import type { RoutingDecision } from '../inference/routing';
 
-export type SkillCategory = 'specialty' | 'clinical_skill' | 'case_type';
-
-type CandidateSkill = {
-  skillCode: string;
-  name: string;
-  category: SkillCategory;
-};
-
-type CandidateDoctorRecord = {
-  id: number;
-  name: string;
-  description: string;
-  ptoStatus: boolean;
-  currentLoad: number;
-  active: boolean;
-  skills: Array<{
-    skill: CandidateSkill;
-  }>;
-};
+export type { CandidateDoctorByNameQueryClient, CandidateDoctorQueryClient } from '../database/candidate-doctors.queries';
 
 export type CandidateDoctorPayload = {
   id: number;
@@ -30,58 +19,6 @@ export type CandidateDoctorPayload = {
   description: string;
   ptoStatus: boolean;
   currentLoad: number;
-};
-
-export type CandidateDoctorQueryClient = {
-  teamMember: {
-    findMany(args: {
-      where: {
-        active: true;
-        ptoStatus: false;
-        skills: {
-          some: {
-            skill: {
-              skillCode: {
-                in: string[];
-              };
-            };
-          };
-        };
-      };
-      include: {
-        skills: {
-          include: {
-            skill: true;
-          };
-        };
-      };
-      orderBy: Array<{ currentLoad: 'asc' }>;
-    }): Promise<CandidateDoctorRecord[]>;
-  };
-};
-
-export type CandidateDoctorByNameQueryClient = {
-  teamMember: {
-    findMany(args: {
-      where: {
-        active: true;
-        ptoStatus: false;
-        name: {
-          contains: string;
-          mode: 'insensitive';
-        };
-      };
-      include: {
-        skills: {
-          include: {
-            skill: true;
-          };
-        };
-      };
-      orderBy: Array<{ currentLoad: 'asc' }>;
-      take: number;
-    }): Promise<CandidateDoctorRecord[]>;
-  };
 };
 
 export type FindCandidateDoctorsOptions = {
@@ -126,33 +63,9 @@ export async function findCandidateDoctorsBySkillCodes(
     return [];
   }
 
-  const client: CandidateDoctorQueryClient = options.client ?? getPrisma();
   const limit = options.limit ?? 8;
   const requiredSkillCodeSet = new Set(requiredSkillCodes);
-
-  const candidates = await client.teamMember.findMany({
-    where: {
-      active: true,
-      ptoStatus: false,
-      skills: {
-        some: {
-          skill: {
-            skillCode: {
-              in: requiredSkillCodes,
-            },
-          },
-        },
-      },
-    },
-    include: {
-      skills: {
-        include: {
-          skill: true,
-        },
-      },
-    },
-    orderBy: [{ currentLoad: 'asc' }],
-  });
+  const candidates = await findCandidateDoctorRecordsBySkillCodes(requiredSkillCodes, options.client);
 
   return candidates
     .map((candidate) => ({
@@ -174,25 +87,10 @@ export async function findCandidateDoctorsByName(
     return [];
   }
 
-  const client: CandidateDoctorByNameQueryClient = options.client ?? getPrisma();
-  const candidates = await client.teamMember.findMany({
-    where: {
-      active: true,
-      ptoStatus: false,
-      name: {
-        contains: normalizedName,
-        mode: 'insensitive',
-      },
-    },
-    include: {
-      skills: {
-        include: {
-          skill: true,
-        },
-      },
-    },
-    orderBy: [{ currentLoad: 'asc' }],
-    take: options.limit ?? 8,
+  const candidates = await findCandidateDoctorRecordsByName({
+    name: normalizedName,
+    limit: options.limit ?? 8,
+    client: options.client,
   });
 
   return candidates.map(toCandidateDoctorPayload);

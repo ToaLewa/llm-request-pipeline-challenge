@@ -1,43 +1,13 @@
-import { getPrisma } from '../database/client';
+import {
+  getTeamMemberCasesRecord,
+  listClinicalTeamRecords,
+  type AssignedCaseRecord,
+  type ClinicalTeamQueryClient,
+  type ClinicalTeamRecord,
+  type SkillCategory,
+} from '../database/clinical-team.queries';
 
-type SkillCategory = 'specialty' | 'clinical_skill' | 'case_type';
-
-type ClinicalTeamSkill = {
-  name: string;
-  category: SkillCategory;
-};
-
-type ClinicalTeamRecord = {
-  id: number;
-  name: string;
-  jobTitle: string;
-  description: string;
-  ptoStatus: boolean;
-  currentLoad: number;
-  active: boolean;
-  skills: Array<{
-    skill: ClinicalTeamSkill;
-  }>;
-};
-
-type AssignedCaseRecord = {
-  id: number;
-  summary: string;
-  createdAt: Date;
-  updatedAt: Date;
-  workflowTask: {
-    id: number;
-    workflowId: number;
-    requestId: number | null;
-    taskType: string;
-    status: string;
-    input?: unknown;
-    output: unknown;
-    reason: string | null;
-    createdAt: Date;
-    updatedAt: Date;
-  };
-};
+export type { ClinicalTeamQueryClient } from '../database/clinical-team.queries';
 
 export type ClinicalTeamMember = {
   id: number;
@@ -73,69 +43,18 @@ export type TeamMemberCases = {
   cases: AssignedCase[];
 };
 
-export type ClinicalTeamQueryClient = {
-  teamMember: {
-    findMany(args: {
-      include: {
-        skills: {
-          include: {
-            skill: true;
-          };
-        };
-      };
-      orderBy: Array<{ active: 'desc' } | { ptoStatus: 'asc' } | { name: 'asc' }>;
-    }): Promise<ClinicalTeamRecord[]>;
-    findUnique(args: {
-      where: { id: number };
-      select: {
-        id: true;
-        name: true;
-        assignments: {
-          include: {
-            workflowTask: true;
-          };
-          orderBy: { createdAt: 'desc' };
-        };
-      };
-    }): Promise<{ id: number; name: string; assignments: AssignedCaseRecord[] } | null>;
-  };
-};
-
 export type GetClinicalTeamOptions = {
   client?: ClinicalTeamQueryClient;
 };
 
 export async function getClinicalTeam(options: GetClinicalTeamOptions = {}): Promise<ClinicalTeamMember[]> {
-  const client: ClinicalTeamQueryClient = options.client ?? getPrisma();
-  const teamMembers = await client.teamMember.findMany({
-    include: {
-      skills: {
-        include: {
-          skill: true,
-        },
-      },
-    },
-    orderBy: [{ active: 'desc' }, { ptoStatus: 'asc' }, { name: 'asc' }],
-  });
+  const teamMembers = await listClinicalTeamRecords(options.client);
 
   return teamMembers.map(toClinicalTeamMember);
 }
 
 export async function getTeamMemberCases(teamMemberId: number, options: GetClinicalTeamOptions = {}): Promise<TeamMemberCases | null> {
-  const client: ClinicalTeamQueryClient = options.client ?? getPrisma();
-  const teamMember = await client.teamMember.findUnique({
-    where: { id: teamMemberId },
-    select: {
-      id: true,
-      name: true,
-      assignments: {
-        include: {
-          workflowTask: true,
-        },
-        orderBy: { createdAt: 'desc' },
-      },
-    },
-  });
+  const teamMember = await getTeamMemberCasesRecord(teamMemberId, options.client);
 
   return teamMember
     ? {

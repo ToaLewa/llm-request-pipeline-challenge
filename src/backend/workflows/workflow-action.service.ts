@@ -1,5 +1,13 @@
 import { findCandidateDoctorsByName, type CandidateDoctorPayload } from '../team/candidates';
-import { getPrisma } from '../database/client';
+import {
+  completeDoctorReassignmentWorkflow,
+  createWorkflowActionTask,
+  loadWorkflowForAction,
+  type PreviousAssignment,
+  type WorkflowActionServiceClient,
+  type WorkflowRecord,
+  type WorkflowTaskRecord,
+} from '../database/workflow-action.queries';
 import {
   createDoctorReassignmentSelection,
   createOpenAIWorkflowActionClient,
@@ -11,64 +19,7 @@ import {
   type WorkflowActionContext,
 } from '../inference/workflow-action';
 
-type WorkflowRequestRecord = {
-  id: number;
-  rawRequest: string;
-};
-
-type WorkflowTaskRecord = {
-  id: number;
-  requestId: number | null;
-  taskType: string;
-  sequence: number;
-  status: string;
-  input: unknown;
-  output: unknown;
-  reason: string | null;
-};
-
-type WorkflowRecord = {
-  id: number;
-  status: string;
-  requests: WorkflowRequestRecord[];
-  tasks: WorkflowTaskRecord[];
-};
-
-type WorkflowTaskCreateData = {
-  workflowId: number;
-  requestId?: number | null;
-  taskType: string;
-  sequence: number;
-  status: string;
-  input: unknown;
-  output: unknown;
-  reason: string | null;
-};
-
-type WorkflowActionTransactionClient = {
-  workflowTask: {
-    create(args: { data: WorkflowTaskCreateData }): Promise<WorkflowTaskRecord>;
-  };
-  assignment: {
-    create(args: { data: { teamMemberId: number; workflowTaskId: number; summary: string } }): Promise<{ id: number }>;
-  };
-  workflow: {
-    update(args: { where: { id: number }; data: { status: string } }): Promise<{ id: number; status: string }>;
-  };
-};
-
-export type WorkflowActionServiceClient = {
-  workflow: {
-    findUnique(args: {
-      where: { id: number };
-      include: {
-        requests: { orderBy: { createdAt: 'asc' } };
-        tasks: { orderBy: [{ sequence: 'asc' }, { createdAt: 'asc' }] };
-      };
-    }): Promise<WorkflowRecord | null>;
-  };
-  $transaction<T>(handler: (tx: WorkflowActionTransactionClient) => Promise<T>): Promise<T>;
-};
+export type { WorkflowActionServiceClient } from '../database/workflow-action.queries';
 
 export type ProcessWorkflowActionOptions = {
   client?: WorkflowActionServiceClient;
@@ -86,12 +37,6 @@ export type ProcessWorkflowActionResult = {
   message: string;
 };
 
-type PreviousAssignment = {
-  taskId: number | null;
-  doctorId: number | null;
-  doctorName: string | null;
-};
-
 export async function processWorkflowAction(
   workflowId: number,
   message: string,
@@ -103,8 +48,8 @@ export async function processWorkflowAction(
     throw new Error('message is required.');
   }
 
-  const client: WorkflowActionServiceClient = options.client ?? (getPrisma() as unknown as WorkflowActionServiceClient);
-  const workflow = await loadWorkflow(workflowId, client);
+  const client = options.client;
+  const workflow = await loadWorkflowForAction(workflowId, client);
   const workflowContext = toWorkflowActionContext(workflow);
   const actionClient = options.workflowActionClient ?? createOpenAIWorkflowActionClient();
   const action = await createWorkflowAction({ message: normalizedMessage, workflowContext }, actionClient);
@@ -124,40 +69,22 @@ export async function processWorkflowAction(
   });
 }
 
-async function loadWorkflow(workflowId: number, client: WorkflowActionServiceClient): Promise<WorkflowRecord> {
-  const workflow = await client.workflow.findUnique({
-    where: { id: workflowId },
-    include: {
-      requests: { orderBy: { createdAt: 'asc' } },
-      tasks: { orderBy: [{ sequence: 'asc' }, { createdAt: 'asc' }] },
-    },
-  });
-
-  if (!workflow) {
-    throw new Error(`Workflow ${workflowId} was not found.`);
-  }
-
-  return workflow;
-}
-
 async function persistUnsupportedAction(args: {
-  client: WorkflowActionServiceClient;
+  client?: WorkflowActionServiceClient;
   workflow: WorkflowRecord;
   message: string;
   action: WorkflowAction;
 }): Promise<ProcessWorkflowActionResult> {
-  const actionTask = await args.client.$transaction(async (tx) => tx.workflowTask.create({
-    data: {
-      workflowId: args.workflow.id,
-      requestId: args.workflow.requests[0]?.id ?? null,
-      taskType: 'workflow_action',
-      sequence: nextSequence(args.workflow.tasks),
-      status: 'unsupported',
-      input: { message: args.message },
-      output: args.action,
-      reason: args.action.reason,
-    },
-  }));
+  const actionTask = await createWorkflowActionTask({
+    client: args.client,
+    workflowId: args.workflow.id,
+    requestId: args.workflow.requests[0]?.id ?? null,
+    sequence: nextSequence(args.workflow.tasks),
+    status: 'unsupported',
+    message: args.message,
+    output: args.action,
+    reason: args.action.reason,
+  });
 
   return {
     workflowId: args.workflow.id,
@@ -170,7 +97,7 @@ async function persistUnsupportedAction(args: {
 }
 
 async function processDoctorReassignment(args: {
-  client: WorkflowActionServiceClient;
+  client?: WorkflowActionServiceClient;
   workflow: WorkflowRecord;
   workflowContext: WorkflowActionContext;
   message: string;
@@ -256,55 +183,21 @@ async function processDoctorReassignment(args: {
   const previousAssignment = latestAssignment(args.workflow.tasks);
   const actionSequence = nextSequence(args.workflow.tasks);
   const resultSequence = actionSequence + 1;
-  const result = await args.client.$transaction(async (tx) => {
-    const actionTask = await tx.workflowTask.create({
-      data: {
-        workflowId: args.workflow.id,
-        requestId: args.workflow.requests[0]?.id ?? null,
-        taskType: 'workflow_action',
-        sequence: actionSequence,
-        status: 'completed',
-        input: { message: args.message },
-        output: args.action,
-        reason: args.action.reason,
-      },
-    });
-    const reassignmentTask = await tx.workflowTask.create({
-      data: {
-        workflowId: args.workflow.id,
-        requestId: args.workflow.requests[0]?.id ?? null,
-        taskType: 'doctor_reassignment',
-        sequence: resultSequence,
-        status: 'completed',
-        input: {
-          actionTaskId: actionTask.id,
-          message: args.message,
-          requestedDoctorName,
-          previousAssignmentTaskId: previousAssignment.taskId,
-          previousDoctorId: previousAssignment.doctorId,
-          previousDoctorName: previousAssignment.doctorName,
-          candidateDoctors,
-        },
-        output: {
-          assignedDoctorId: assignedDoctor.id,
-          assignedDoctorName: assignedDoctor.name,
-          assignmentReason: selection.reason,
-          confidence: selection.confidence,
-        },
-        reason: selection.reason,
-      },
-    });
-
-    await tx.assignment.create({
-      data: {
-        teamMemberId: assignedDoctor.id,
-        workflowTaskId: reassignmentTask.id,
-        summary: buildReassignmentSummary(assignedDoctor.name, previousAssignment, selection.reason),
-      },
-    });
-    await tx.workflow.update({ where: { id: args.workflow.id }, data: { status: 'assigned' } });
-
-    return { actionTask, reassignmentTask };
+  const result = await completeDoctorReassignmentWorkflow({
+    client: args.client,
+    workflowId: args.workflow.id,
+    requestId: args.workflow.requests[0]?.id ?? null,
+    actionSequence,
+    resultSequence,
+    message: args.message,
+    action: args.action,
+    requestedDoctorName,
+    previousAssignment,
+    candidateDoctors,
+    assignedDoctor,
+    selectionReason: selection.reason,
+    selectionConfidence: selection.confidence,
+    assignmentSummary: buildReassignmentSummary(assignedDoctor.name, previousAssignment, selection.reason),
   });
 
   return {
@@ -318,24 +211,22 @@ async function processDoctorReassignment(args: {
 }
 
 async function persistReviewAction(
-  client: WorkflowActionServiceClient,
+  client: WorkflowActionServiceClient | undefined,
   workflow: WorkflowRecord,
   message: string,
   action: WorkflowAction,
   reason: string,
 ): Promise<WorkflowTaskRecord> {
-  return client.$transaction(async (tx) => tx.workflowTask.create({
-    data: {
-      workflowId: workflow.id,
-      requestId: workflow.requests[0]?.id ?? null,
-      taskType: 'workflow_action',
-      sequence: nextSequence(workflow.tasks),
-      status: 'needs_review',
-      input: { message },
-      output: { ...action, reason },
-      reason,
-    },
-  }));
+  return createWorkflowActionTask({
+    client,
+    workflowId: workflow.id,
+    requestId: workflow.requests[0]?.id ?? null,
+    sequence: nextSequence(workflow.tasks),
+    status: 'needs_review',
+    message,
+    output: { ...action, reason },
+    reason,
+  });
 }
 
 function toWorkflowActionContext(workflow: WorkflowRecord): WorkflowActionContext {

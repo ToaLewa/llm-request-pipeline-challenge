@@ -1,29 +1,12 @@
-import { getPrisma } from '../database/client';
+import {
+  getWorkflowRecord,
+  listWorkflowRecords,
+  type WorkflowListQueryClient,
+  type WorkflowListRecord,
+  type WorkflowTaskRecord,
+} from '../database/workflow-list.queries';
 
-type WorkflowTaskRecord = {
-  id: number;
-  requestId: number | null;
-  taskType: string;
-  sequence: number;
-  status: string;
-  input?: unknown;
-  output: unknown;
-  reason: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-type WorkflowListRecord = {
-  id: number;
-  status: string;
-  createdAt: Date;
-  updatedAt: Date;
-  _count: {
-    requests: number;
-    tasks: number;
-  };
-  tasks: WorkflowTaskRecord[];
-};
+export type { WorkflowListQueryClient } from '../database/workflow-list.queries';
 
 export type WorkflowSummary = {
   id: number;
@@ -61,81 +44,18 @@ export type WorkflowDetail = WorkflowSummary & {
   tasks: WorkflowTaskSummary[];
 };
 
-export type WorkflowListQueryClient = {
-  workflow: {
-    findMany(args: {
-      include: {
-        _count: {
-          select: {
-            requests: true;
-            tasks: true;
-          };
-        };
-        tasks: {
-          orderBy: [{ sequence: 'desc' }, { createdAt: 'desc' }];
-          take: 1;
-        };
-      };
-      orderBy: { createdAt: 'desc' };
-    }): Promise<WorkflowListRecord[]>;
-    findUnique(args: {
-      where: { id: number };
-      include: {
-        _count: {
-          select: {
-            requests: true;
-            tasks: true;
-          };
-        };
-        tasks: {
-          orderBy: [{ sequence: 'asc' }, { createdAt: 'asc' }];
-        };
-      };
-    }): Promise<WorkflowListRecord | null>;
-  };
-};
-
 export type ListWorkflowsOptions = {
   client?: WorkflowListQueryClient;
 };
 
 export async function listWorkflows(options: ListWorkflowsOptions = {}): Promise<WorkflowSummary[]> {
-  const client: WorkflowListQueryClient = options.client ?? getPrisma();
-  const workflows = await client.workflow.findMany({
-    include: {
-      _count: {
-        select: {
-          requests: true,
-          tasks: true,
-        },
-      },
-      tasks: {
-        orderBy: [{ sequence: 'desc' }, { createdAt: 'desc' }],
-        take: 1,
-      },
-    },
-    orderBy: { createdAt: 'desc' },
-  });
+  const workflows = await listWorkflowRecords(options.client);
 
   return workflows.map(toWorkflowSummary);
 }
 
 export async function getWorkflow(workflowId: number, options: ListWorkflowsOptions = {}): Promise<WorkflowDetail | null> {
-  const client: WorkflowListQueryClient = options.client ?? getPrisma();
-  const workflow = await client.workflow.findUnique({
-    where: { id: workflowId },
-    include: {
-      _count: {
-        select: {
-          requests: true,
-          tasks: true,
-        },
-      },
-      tasks: {
-        orderBy: [{ sequence: 'asc' }, { createdAt: 'asc' }],
-      },
-    },
-  });
+  const workflow = await getWorkflowRecord(workflowId, options.client);
 
   return workflow ? { ...toWorkflowSummary(workflow), tasks: workflow.tasks.map(toWorkflowTaskSummary) } : null;
 }
