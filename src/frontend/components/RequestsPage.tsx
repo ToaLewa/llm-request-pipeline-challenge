@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { formatLabel } from '../format';
 import type { AppRoute, RequestSubmissionResult } from '../types';
 import { useAppNavigation } from '../useAppNavigation';
-import { LoadingSpinner } from './LoadingSpinner';
+import { ChatPanel } from './ChatPanel';
 import { Navigation } from './Navigation';
 
 type RequestsPageProps = {
@@ -56,42 +56,19 @@ export function RequestsPage({ onNavigate }: RequestsPageProps) {
     <section className="page-shell requests-page">
       <Navigation route="/requests" onNavigate={onNavigate} />
       <main className="request-workspace">
-        <section className="request-panel workflow-chat-panel" aria-labelledby="request-title">
-          <div className="request-heading workflow-chat-summary">
-            <span>
-              <span className="eyebrow">New Request</span>
-              <span className="workflow-chat-title" id="request-title">Route a request</span>
-            </span>
-          </div>
-
-          <div className="workflow-chat-content">
-            <p>Describe your request in plain language, and we will route this to the appropriate team.</p>
-
-            <LoadingSpinner
-              isLoading={isSubmitting}
-              className="request-thinking workflow-action-thinking"
-              spinnerClassName="workflow-action-spinner"
-              message="The server is thinking through the best workflow."
-            />
-
-            {!isSubmitting ? (
-              <form className="request-composer workflow-chat-composer" onSubmit={handleSubmit}>
-                <label className="sr-only" htmlFor="request-text">Request details</label>
-                <textarea
-                  id="request-text"
-                  value={requestText}
-                  onChange={(event) => setRequestText(event.target.value)}
-                  placeholder="Paste or type the full request here..."
-                  rows={4}
-                />
-                <div className="composer-actions">
-                  <span>{requestText.trim().length} characters ready for routing</span>
-                  <button type="submit">Route Request</button>
-                </div>
-              </form>
-            ) : null}
-          </div>
-        </section>
+        <ChatPanel
+          eyebrow="New Request"
+          title="Route a request"
+          description="Describe your request in plain language, and we will route this to the appropriate team."
+          textareaId="request-text"
+          textareaLabel="Request details"
+          value={requestText}
+          onChange={setRequestText}
+          onSubmit={handleSubmit}
+          placeholder="Paste or type the full request here..."
+          submitLabel="Route Request"
+          isSubmitting={isSubmitting}
+        />
 
         {submissionState.status === 'success' ? (
           <aside className="routing-result" aria-live="polite">

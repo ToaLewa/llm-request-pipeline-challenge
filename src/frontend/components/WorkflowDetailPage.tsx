@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent, type MouseEvent } from 'react';
 import { formatLabel } from '../format';
 import type { AppRoute, WorkflowActionResult, WorkflowDetail, WorkflowDetailState, WorkflowTaskSummary } from '../types';
-import { LoadingSpinner } from './LoadingSpinner';
+import { ChatPanel } from './ChatPanel';
 import { Navigation } from './Navigation';
 
 type WorkflowDetailPageProps = {
@@ -94,45 +94,22 @@ export function WorkflowDetailPage({ workflowId, onNavigate }: WorkflowDetailPag
         </div>
       </header>
 
-      {!isSubmitting &&
-        <details className="workflow-chat-panel">
-          <summary className="workflow-chat-summary">
-            <span>
-              <span className="eyebrow">Workflow Action</span>
-              <span className="workflow-chat-title">Send an instruction</span>
-            </span>
-            <span className="workflow-chat-toggle">Expand</span>
-          </summary>
-          <div className="workflow-chat-content">
-            <p>Tell the workflow what should happen next, such as reassigning the doctor. Unsupported actions will be recorded for auditability.</p>
-            <form className="workflow-chat-composer" onSubmit={handleTaskDraftSubmit}>
-              <label className="sr-only" htmlFor="workflow-task-draft">Task instruction</label>
-              <textarea
-                id="workflow-task-draft"
-                value={taskDraft}
-                onChange={(event) => setTaskDraft(event.target.value)}
-                disabled={isSubmitting}
-                placeholder="Example: Please reassign this to Dr. Emily Chen..."
-                rows={4}
-              />
-              <div className="composer-actions">
-                <span>{taskDraft.trim().length} characters drafted</span>
-                <button type="submit" disabled={isSubmitting || !taskDraft.trim()}>
-                  {isSubmitting ? 'Sending...' : 'Send Action'}
-                </button>
-              </div>
-            </form>
-            {actionState.status !== 'idle' ? (
-              <p className={`workflow-action-message is-${actionState.status}`} role={actionState.status === 'error' ? 'alert' : 'status'}>{actionState.message}</p>
-            ) : null}
-          </div>
-        </details>
-      }
-      <LoadingSpinner
-        isLoading={isSubmitting}
-        className="workflow-action-thinking"
-        spinnerClassName="workflow-action-spinner"
-        message="Processing workflow action..."
+      <ChatPanel
+        eyebrow="Workflow Action"
+        title="Send an instruction"
+        description="Tell the workflow what should happen next, such as reassigning the doctor. Unsupported actions will be recorded for auditability."
+        textareaId="workflow-task-draft"
+        textareaLabel="Task instruction"
+        value={taskDraft}
+        onChange={setTaskDraft}
+        onSubmit={handleTaskDraftSubmit}
+        placeholder="Example: Please reassign this to Dr. Emily Chen..."
+        submitLabel="Send Action"
+        isSubmitting={isSubmitting}
+        expandable
+        submitDisabled={!taskDraft.trim()}
+        status={actionState.status !== 'idle' && actionState.status !== 'submitting' ? actionState.status : undefined}
+        statusMessage={actionState.status !== 'idle' && actionState.status !== 'submitting' ? actionState.message : undefined}
       />
 
       {!isSubmitting &&

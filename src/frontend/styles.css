@@ -205,24 +205,8 @@ p {
   margin: 0 auto;
 }
 
-.request-panel {
-  gap: 0;
-}
-
-.request-heading {
+.chat-panel-static-heading {
   cursor: default;
-}
-
-.request-composer {
-  align-self: stretch;
-}
-
-.request-composer textarea {
-  min-height: 11rem;
-}
-
-.request-thinking {
-  width: fit-content;
 }
 
 .thinking-spinner {
@@ -271,7 +255,7 @@ p {
 }
 
 .composer-actions button:disabled,
-.request-composer textarea:disabled {
+.workflow-chat-composer textarea:disabled {
   cursor: not-allowed;
   opacity: 0.72;
 }
