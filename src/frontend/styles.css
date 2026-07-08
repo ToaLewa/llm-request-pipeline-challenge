@@ -470,6 +470,10 @@ p {
   gap: 1.25rem;
 }
 
+.team-member-cases-hero-grid {
+  align-items: start;
+}
+
 .summary-card {
   display: grid;
   gap: 0.25rem;

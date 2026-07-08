@@ -48,10 +48,10 @@ export function TeamMemberCasesPage({ teamMemberId, onNavigate }: TeamMemberCase
       <Navigation route="/clinical-team" onNavigate={onNavigate} />
       <header className="hero">
         <a className="workflow-back-link" href="/clinical-team" onClick={handleBackClick}>Back to clinical team</a>
-        <div className="hero-grid">
+        <div className="hero-grid team-member-cases-hero-grid">
           <div>
             <h2>{teamMemberName}</h2>
-            <p className="intro">Assigned cases for this clinical team member, including workflow context and current task status.</p>
+            <p className="intro">Assigned cases for this clinical team member.</p>
           </div>
           <aside className="summary-card" aria-label="Assigned cases summary">
             <span className="summary-number">{loadedCases.length}</span>
