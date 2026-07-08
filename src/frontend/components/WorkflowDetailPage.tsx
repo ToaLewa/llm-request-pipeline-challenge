@@ -91,13 +91,6 @@ export function WorkflowDetailPage({ workflowId, onNavigate }: WorkflowDetailPag
           <div>
             <h2>Tasks For Workflow #{workflowId}</h2>
           </div>
-          {workflowState.status === 'loaded' ? (
-            <aside className="summary-card" aria-label="Workflow task summary">
-              <span className="summary-number">{workflowState.workflow.tasks.length}</span>
-              <span className="summary-label">Tasks recorded</span>
-              <span className="summary-detail">{formatLabel(workflowState.workflow.status)} workflow with {workflowState.workflow.requestCount} request source{workflowState.workflow.requestCount === 1 ? '' : 's'}</span>
-            </aside>
-          ) : null}
         </div>
       </header>
 
