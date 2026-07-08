@@ -7,6 +7,9 @@ The app provides a React frontend for submitting requests and reviewing workflow
 ## Demo Link
 https://youtu.be/Zkh8x7maMNw
 
+### Errata
+I did not walk through generating the Prisma client in the video. Be sure to run `npm run db:generate` first before the migration.
+
 ## What It Includes
 
 - A Vite + React frontend on port `5173`
